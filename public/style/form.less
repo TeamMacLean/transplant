@@ -1,0 +1,153 @@
+
+label {
+  display: block;
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0 0 12px 0;
+}
+
+input {
+  margin: 0;
+  //width:100%;
+
+  @media (max-width: @breakpoint) {
+    //.narrow-center {
+    width: 100%;
+    //}
+  }
+}
+
+input[type="email"],
+input[type="number"],
+input[type="search"],
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+input[type="password"] {
+  height: @input-height;
+  padding: 6px 10px;
+  background-color: #ffffff;
+  border: 1px solid @grey;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+  vertical-align: middle; //TODO
+
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+
+  &.has-icon {
+    padding-right: 43.75px;
+  }
+  &.has-button {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  &:focus {
+    border: 1px solid @blue;
+    outline: 0;
+  }
+
+}
+
+.input-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: block;
+  width: @input-height;
+  height: @input-height;
+  line-height: @input-height;
+  text-align: center;
+  pointer-events: none;
+  color: @grey-dark;
+}
+
+textarea, select {
+  height: @input-height;
+  padding: 6px 10px;
+  background-color: #ffffff;
+  border: 1px solid @grey;;
+  border-radius: 4px;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.narrow-center {
+  width: 320px;
+  margin: 0 auto 0 auto;
+}
+
+.has-feedback {
+  position: relative;
+}
+
+.login-header {
+  padding: 10px 15px;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+  color: @white;
+  background-color: @font-color;
+  border-color: @font-color;
+  text-align: center;
+  font-size: 2rem;
+  a {
+    color: @white;
+  }
+
+  img {
+    height: 30px;
+    width: auto;
+    margin-bottom: 5px;
+  }
+}
+
+.login-body {
+  background: @white;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+.login-box {
+  .pillow();
+}
+
+@media (max-width: @breakpoint) {
+  .narrow-center {
+    width: 100%;
+  }
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px @white inset;
+}
+
+hr {
+  margin-bottom: 32px;
+
+  border: 0;
+  height: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+
+}
+
+.document {
+  word-wrap: break-word;
+  img {
+    @media (max-width: @breakpoint) {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

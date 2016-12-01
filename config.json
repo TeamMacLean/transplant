@@ -1,0 +1,32 @@
+{
+  "port": "3000",
+  "secret": "cats",
+  "dbName": "synbioshop",
+  "defaultUserIcon": "/img/default_icon.jpg",
+  "uploadRoot": "public/uploads",
+  "uploadRootURL": "/uploads",
+  "imageTypesAllowed": [
+    "png",
+    "jpg",
+    "jpeg",
+    "gif"
+  ],
+  "tmpDir": "/tmp",
+  "baseURL": "http://127.0.0.1:3000",
+  "ldap": {
+    "url": "ldap://dc2.nbi.ac.uk:389",
+    "bindDn": "ldapuser",
+    "bindCredentials": "P1neW00d",
+    "searchBase": "OU=TSLUsers,OU=NBIUsers,dc=nbi,dc=ac,dc=uk",
+    "searchFilter": "(sAMAccountName={{username}})"
+  },
+  "email": {
+    "host": "mail.nbi.ac.uk",
+    "port": "25",
+    "from": "TSL SynBio ◉ <mark.youles@tsl.ac.uk>",
+    "emailDomain": "@nbi.ac.uk"
+  },
+  "admins": [
+    "pagem"
+  ]
+}

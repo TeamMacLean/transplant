@@ -1,0 +1,32 @@
+{
+  "port": "3000",
+  "secret": "cats",
+  "dbName": "synbioshop",
+  "defaultUserIcon": "/img/default_icon.jpg",
+  "uploadRoot": "public/uploads",
+  "uploadRootURL": "/uploads",
+  "imageTypesAllowed": [
+    "png",
+    "jpg",
+    "jpeg",
+    "gif"
+  ],
+  "tmpDir": "/tmp",
+  "baseURL": "http://127.0.0.1:3000",
+  "ldap": {
+    "url": "ldap://my-dc-controller:389",
+    "bindDn": "ldap",
+    "bindCredentials": "pass",
+    "searchBase": "OU=user,dc=mydc,dc=co,dc=uk",
+    "searchFilter": "(sAMAccountName={{username}})"
+  },
+  "email": {
+    "host": "mail.example.org",
+    "port": "25",
+    "from": "TSL SynBio ◉ <synbio@example.org>",
+    "emailDomain": "@example.org"
+  },
+  "admins": [
+    "pagem"
+  ]
+}
