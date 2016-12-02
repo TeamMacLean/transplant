@@ -45,6 +45,11 @@ nav {
         height: @nav-height - 4;
         width: auto;
         margin: 2px;
+
+        //  make it grey
+        //  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+        //  filter: grayscale(100%);
+
       }
     }
     .name {
@@ -68,11 +73,11 @@ nav {
         margin: 0;
         text-align: center;
       }
-      li{
-        &:hover{
-          background-color: darken(#FFF,8%);
+      li {
+        &:hover {
+          background-color: darken(#FFF, 8%);
         }
-        a{
+        a {
           display: block;
           padding: 0 50px;
         }

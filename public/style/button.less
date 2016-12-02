@@ -26,24 +26,26 @@ input[type="button"] {
   //border: 1px solid @grey;
   border: 1px solid @primary;
 
+  .transition-background-color;
+  .transition-color;
+
   &:focus, &:hover {
-    //  border: 1px solid @primary;
-    //  outline: 0;
-    //  background-color: @grey;
+    border: 1px solid @primary;
+    outline: 0;
+    background-color: @primary-dark;
+    color: white;
   }
 
   &.wide {
     width: 100%;
   }
 
-  &.primary{
+  &.primary {
     background-color: @primary;
-    color:#FFF;
+    color: #FFF;
     border: none;
 
-    .transition-background-color;
-
-    &:hover{
+    &:hover {
       background-color: @primary-dark;
     }
   }
@@ -54,7 +56,6 @@ input[type="button"] {
     margin: 0 auto;
     display: table;
   }
-
 
   //
   //  &.icon {

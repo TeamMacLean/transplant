@@ -9,9 +9,10 @@
 //  padding: 0 0 12px 0;
 //}
 //
-input {
+input, textarea {
   margin: 0;
   width: 100%;
+  color: @font-color;
 
   @media (max-width: @breakpoint) {
     //.narrow-center {
@@ -26,6 +27,7 @@ input {
 
 input[type="email"],
 input[type="number"],
+input[type="date"],
 input[type="search"],
 input[type="text"],
 input[type="tel"],
@@ -70,7 +72,7 @@ input[type="password"] {
   line-height: @input-height !important;
   text-align: center;
   pointer-events: none;
-  color:inherit;
+  color: inherit;
 }
 
 textarea, select {
@@ -134,6 +136,17 @@ textarea, select {
 
 input:-webkit-autofill {
   -webkit-box-shadow: 0 0 0px 1000px #FFF inset;
+}
+
+fieldset {
+  border: none;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1.2rem;
+  font-weight: 300;
 }
 
 //

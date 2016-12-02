@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Util = require('./lib/util');
 const Auth = require('./controllers/auth');
+const Requests = require('./controllers/requests');
 
 router.route('/')
     .get((req, res) => res.render('index'));
@@ -11,14 +12,16 @@ router.route('/signin')
     .get(Auth.signIn)
     .post(Auth.signInPost);
 //
-// router.route('/signout')
-//     .all(isAuthenticated)
-//     .get(auth.signOut);
-//
-// router.route('/whoamoi')
-//     .all(isAuthenticated)
-//     .get(auth.whoami);
+router.route('/signout')
+    .all(isAuthenticated)
+    .get(Auth.signOut);
 
+
+router.route('/new')
+    .all(isAuthenticated)
+    .get(Requests.new);
+
+//LAST!
 router.route('*')
     .get((req, res) => {
         console.log('404', req.url);
