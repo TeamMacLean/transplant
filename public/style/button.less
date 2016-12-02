@@ -3,7 +3,7 @@ button,
 input[type="submit"],
 input[type="reset"],
 input[type="button"] {
-  background-color: @white;
+  background-color: #FFF;
   height: @input-height;
   line-height: @input-height;
   outline: 0;
@@ -23,71 +23,30 @@ input[type="button"] {
   -ms-user-select: none;
   user-select: none;
   border-radius: 4px;
-  border: 1px solid @grey;
+  //border: 1px solid @grey;
+  border: 1px solid @primary;
 
-  -webkit-transition: background-color ease-in-out .15s, border-color ease-in-out .15s, color ease-in-out .15s;
-  -o-transition: background-color ease-in-out .15s, border-color ease-in-out .15s, color ease-in-out .15s;
-  transition: background-color ease-in-out .15s, border-color ease-in-out .15s, color ease-in-out .15s;
-
-  //margin-bottom: 4px;
-
-  //&:focus {
-  //  border: 1px solid @blue;
-  //  outline: 0;
-  //}
-
-  &:hover, &.hover {
-    background-color: darken(@white, 4%);
-  }
-  &:focus {
-    border: 1px solid @blue;
+  &:focus, &:hover {
+    //  border: 1px solid @primary;
+    //  outline: 0;
+    //  background-color: @grey;
   }
 
-  &.success {
-    color: @white;
-    background-color: @success;
+  &.wide {
+    width: 100%;
+  }
+
+  &.primary{
+    background-color: @primary;
+    color:#FFF;
     border: none;
-    &.outline {
-      border: @success 1px solid;
-      background: none;
-      color: @success;
-    }
-    &:hover, &.hover {
-      background-color: darken(@success, 4%);
-      color: @white;
+
+    .transition-background-color;
+
+    &:hover{
+      background-color: @primary-dark;
     }
   }
-
-  &.danger {
-    color: @white;
-    background-color: @red;
-    border: none;
-    &.outline {
-      border: @red 1px solid;
-      color: @red;
-      background: none;
-    }
-    &:hover, &.hover {
-      background-color: darken(@red, 4%);
-      color: @white;
-    }
-  }
-
-  &.primary {
-    color: @white;
-    background-color: @blue;
-    border: none;
-    &.outline {
-      border: @blue 1px solid;
-      color: @blue;
-      background: none;
-    }
-    &:hover, &.hover {
-      background-color: darken(@blue, 4%);
-      color: @white;
-    }
-  }
-
   &.center {
     //display: block;
     //margin-left: auto;
@@ -96,41 +55,34 @@ input[type="button"] {
     display: table;
   }
 
-  &.icon {
-    padding: 0 4px;
-    width: @input-height;
-    font-size: 1.5rem;
-  }
 
-  &.disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-
-  &.inputbutton {
-    padding-top: 0;
-    margin-left: -6px;
-    border-bottom-left-radius: 0;
-    border-top-left-radius: 0;
-    img {
-      height: 20px;
-      vertical-align: middle;
-      padding-bottom: 4px;
-    }
-  }
-  &.small {
-    height: 20px;
-    line-height: 20px;
-    padding: 0 4px;
-  }
-}
-
-::-webkit-file-upload-button {
-  .button;
-}
-
-.button.icon.remove-from-cart {
-  font-size: 22px;
-  vertical-align: middle;
+  //
+  //  &.icon {
+  //    padding: 0 4px;
+  //    width: @input-height;
+  //    font-size: 1.5rem;
+  //  }
+  //
+  //  &.disabled {
+  //    opacity: 0.65;
+  //    cursor: not-allowed;
+  //    pointer-events: none;
+  //  }
+  //
+  //  &.inputbutton {
+  //    padding-top: 0;
+  //    margin-left: -6px;
+  //    border-bottom-left-radius: 0;
+  //    border-top-left-radius: 0;
+  //    img {
+  //      height: 20px;
+  //      vertical-align: middle;
+  //      padding-bottom: 4px;
+  //    }
+  //  }
+  //  &.small {
+  //    height: 20px;
+  //    line-height: 20px;
+  //    padding: 0 4px;
+  //  }
 }

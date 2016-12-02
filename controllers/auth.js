@@ -23,35 +23,14 @@ Auth.signOut = (req, res) => {
 };
 
 Auth.signInPost = (req, res, next) => {
-
-    // req.logIn({
-    //     id: 'pagem',
-    //     username: 'pagem',
-    //     name: 'pagem',
-    //     mail: 'pagem',
-    //     memberOf: []
-    // }, err => {
-    //     if (err) {
-    //         return next(err);
-    //     }
-    //
-    //     req.user.iconURL = gravatar.url(req.user.mail) || config.defaultUserIcon;
-    //
-    //     //take them to the page they wanted before signing in :)
-    //     if (req.session.returnTo) {
-    //         return res.redirect(req.session.returnTo);
-    //     } else {
-    //         return res.redirect('/');
-    //     }
-    // });
-
     passport.authenticate('ldapauth', (err, user, info) => {
         if (err) {
             LOG.error(err);
             return next(err);
         }
         if (!user) {
-            var message = 'No such user';
+            var message = 'Failed to sign in';
+            // var message = '';
             if (info && info.message) {
                 message += `, ${info.message}`;
             }
@@ -63,7 +42,7 @@ Auth.signInPost = (req, res, next) => {
                 return next(err);
             }
 
-            req.user.iconURL = gravatar.url(req.user.mail) || config.defaultUserIcon;
+            req.user.iconURL = gravatar.url(req.user.mail);
 
             //take them to the page they wanted before signing in :)
             if (req.session.returnTo) {

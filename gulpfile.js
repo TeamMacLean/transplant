@@ -4,7 +4,7 @@ var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 
 const jsPath = 'public/js';
-const appPath = `${jsPath}/goldengate.jsx`;
+const appPath = `${jsPath}/app.jsx`;
 
 gulp.task('frontend', () => gulp.src(appPath)
     .pipe(babel())

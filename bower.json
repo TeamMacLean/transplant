@@ -1,0 +1,26 @@
+{
+  "name": "transplant",
+  "description": "TSL Plant Transformation",
+  "main": "server.js",
+  "authors": [
+    "Martin Page"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "tsl"
+  ],
+  "homepage": "https://github.com/TeamMacLean/transplant",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/components/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "simple-line-icons": "^2.4.1",
+    "jquery": "^3.1.1",
+    "normalize-css": "^5.0.0"
+  }
+}

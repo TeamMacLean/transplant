@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const Util = require('./lib/util');
+const Auth = require('./controllers/auth');
 
 router.route('/')
     .get((req, res) => res.render('index'));
 
 //AUTH
-// router.route('/signin')
-//     .get(auth.signIn)
-//     .post(auth.signInPost);
+router.route('/signin')
+    .get(Auth.signIn)
+    .post(Auth.signInPost);
 //
 // router.route('/signout')
 //     .all(isAuthenticated)

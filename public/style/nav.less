@@ -1,268 +1,291 @@
-.nav {
-  a {
-    color: @font-color;
-  }
-
-  z-index: 100;
-  //overflow: auto;
-  background-color: @white;
-  height: 45px;
+nav {
+  height: @nav-height;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  overflow: hidden;
+
+  z-index: 100;
+
+  //act like container
+  //width: 100%;
+  //max-width: 980px;
+  //margin: 0 auto;
+  //box-sizing: border-box;
+
+  background-color: #FFF;
 
   .pillow;
 
-  a {
-    text-decoration: none;
-    display: block; //TODO
-  }
-
   .brand {
-    //font-family: @header-font;
-
-    a {
-      color: @white;
-      font-weight: 300;
-    }
-
-    img {
-      //display: none;
-      height: 30px;
-      width: auto;
-      margin-bottom: 2px;
-    }
-
+    font-weight: 300;
     float: left;
-    color: @white;
-    height: 45px;
     font-size: 1.5rem;
-    font-weight: 600;
-    background: @blue; /* Old browsers */
-    //background: -moz-linear-gradient(left, @blue 0%, @blue-light 100%); /* FF3.6-15 */
-    //background: -webkit-linear-gradient(left, @blue 0%, @blue-light 100%); /* Chrome10-25,Safari5.1-6 */
-    //background: linear-gradient(to right, @blue 0%, @blue-light 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    //filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2cb3cb', endColorstr='#2ee2d3', GradientType=1);
-    //background-color: @font-color;
+    //text-transform: uppercase;
+    background-color: @primary;
+    .transition-background-color;
+    &:hover {
+      background-color: @primary-dark;
+    }
+    a {
+      color: #FFF;
 
-    width: 180px;
-    line-height: 42px;
-    text-align: center;
-  }
-
-  .nav-top-right, .search, .nav-cart {
-    margin-right: 20px;
+    }
   }
 
   .user {
-    float: left;
+    float: right;
+    font-weight: 400;
+    //font-size: 1.2rem;
 
-    //width: 180px;;
-    margin-right: 10px;
-    text-align: center;
     .image {
       float: left;
+      height: @nav-height;
       img {
-        border-radius: 50%;
-        height: 35px;
-        width: 35px;
-        margin-right: 8px;
-        margin-top: 5px;
+        height: @nav-height - 4;
+        width: auto;
+        margin: 2px;
       }
     }
     .name {
-      line-height: 45px;
-      color: @font-color;
-      float: left;
+      float: right;
     }
 
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .nav-cart {
-    float: left;
-    height: 45px;
-    line-height: 45px;
-    span.icon {
-      font-size: 1.5rem;
-      float: left;
-      margin-right: 5px;
-    }
-    span.count {
-      font-size: 1rem;
-      float: left;
-      //font-size:2rem;
-      //position: relative;
-      //left: -10px;
-      //top: -10px;
-    }
-  }
-
-  .search {
-    text-align: center;
-    padding: 4px;
-    float: left;
-
-    input, button {
-      vertical-align: middle;
-    }
-  }
-
-  .search-results {
-
-    width: 50%;
-    .pillow;
-    border-radius: 4px;
-    position: fixed;
-    background-color: white;
-    padding: 12px;
-    //margin: 20px;
-    top: 45px;
-    //right: 180px;
-    //left:180px;
-    margin: 0 20px;
-    display: block;
-    //left: 180px;
-    &.hidden {
-      display: none;
-    }
-
-    li a {
-      padding: 4px 0;
-    }
-  }
-
-  .user-menu {
-    .pillow;
-    width: 150px;
-    margin-right: 20px;
-    //border-bottom: 1px solid grey;
-    //border-left: 1px solid grey;
-    //border-right: 1px solid grey;
-    background-color: @white;
-    color: @font-color;
-    //position: relative;
-    //top: 0;
-    //margin-top: 2px;
-    float: left;
-    /* width: 100%; */
-    position: fixed;
-    top: 45px;
-    right: 0;
-    //padding: 16px;
-
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    padding: 8px;
-
-    a {
-      color: @font-color;
-      //line-height: 32px;
-    }
-    ul {
+    .user-menu {
+      position: fixed;
+      right: 0;
+      top: @nav-height;
+      //width:180px;
+      background: #FFF;
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
       list-style: none;
-      margin: 0;
-      padding: 0;
-      li {
-        list-style: none;
-        padding: 4px 8px;
-        &:hover {
-          background-color: @white-dark;
 
+      .pillow;
+      ul, li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        text-align: center;
+      }
+      li{
+        &:hover{
+          background-color: darken(#FFF,8%);
+        }
+        a{
+          display: block;
+          padding: 0 50px;
         }
       }
     }
+
   }
-  .mobile {
-    height: 45px;
-    font-size: 35px;
-    float: left;
+
+  .brand, .user {
+    height: @nav-height;
+    line-height: @nav-height;
+    padding: 0 16px;
+
   }
-}
-
-.nav-left {
-  z-index: 1;
-  white-space: initial; //TODO
-  //text-transform: uppercase;
-  float: left;
-  width: 180px;
-  min-height: 100%;
-  color: #fff;
-  background-color: @background-dark;
-
-  position: fixed;
-  left: 0;
-  top: 0;
-  padding-top: 44px;
-
-  overflow: hidden;
-  display: inline-block;
-  //text-overflow: ellipsis;
 
   a {
-    display: block;
-    color: #BFCCE5;
-    &:hover {
-      color: @white;
-    }
-  }
-  ul, li {
-    list-style: none;
-  }
-  ul {
-    margin: 12px 0;
-    padding: 0;
-    li {
-
-      color: #BFCCE5;
-      padding: 4px 20px 4px 4px;
-      font-size: 0.8rem;
-
-      //border-left: 2px solid #495062;
-      &.active {
-        color: #fff;
-        border-left: 2px solid @blue;
-      }
-      .icon {
-        margin-right: 8px;
-        font-size: 1rem;
-        //line-height: 1rem;
-        vertical-align: middle;
-        float: left;
-      }
-      .name {
-        //text-transform: uppercase;
-        //float: right;
-        font-size: .8rem;
-
-        height: 100%;
-        display: block;
-        overflow: auto
-
-        //font-weight: 300;
-      }
-    }
-  }
-  h1, h2, h3, h4, h5 {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    text-align: center;
-    font-size: 1rem;
-  }
-}
-
-.sidebar-push {
-  margin-left: 180px;
-}
-
-@media only screen and (max-width: @breakpoint) {
-  .user .name {
-    display: none !important;
+    color: @font-color;
   }
 
 }
+
+//.nav {
+//  a {
+//    color: @font-color;
+//  }
+//
+//  z-index: 100;
+//  //overflow: auto;
+//  background-color: @white;
+//  height: 45px;
+//  position: fixed;
+//  top: 0;
+//  left: 0;
+//  right: 0;
+//  overflow: hidden;
+//
+//  .pillow;
+//
+//  a {
+//    text-decoration: none;
+//    display: block; //TODO
+//  }
+//
+//  .brand {
+//    //font-family: @header-font;
+//
+//    a {
+//      color: @white;
+//      font-weight: 300;
+//    }
+//
+//    img {
+//      //display: none;
+//      height: 30px;
+//      width: auto;
+//      margin-bottom: 2px;
+//    }
+//
+//    float: left;
+//    color: @white;
+//    height: 45px;
+//    font-size: 1.5rem;
+//    font-weight: 600;
+//    background: @blue; /* Old browsers */
+//    //background: -moz-linear-gradient(left, @blue 0%, @blue-light 100%); /* FF3.6-15 */
+//    //background: -webkit-linear-gradient(left, @blue 0%, @blue-light 100%); /* Chrome10-25,Safari5.1-6 */
+//    //background: linear-gradient(to right, @blue 0%, @blue-light 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+//    //filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2cb3cb', endColorstr='#2ee2d3', GradientType=1);
+//    //background-color: @font-color;
+//
+//    width: 180px;
+//    line-height: 42px;
+//    text-align: center;
+//  }
+//
+//  .nav-top-right, .search, .nav-cart {
+//    margin-right: 20px;
+//  }
+//
+//  .user {
+//    float: left;
+//
+//    //width: 180px;;
+//    margin-right: 10px;
+//    text-align: center;
+//    .image {
+//      float: left;
+//      img {
+//        border-radius: 50%;
+//        height: 35px;
+//        width: 35px;
+//        margin-right: 8px;
+//        margin-top: 5px;
+//      }
+//    }
+//    .name {
+//      line-height: 45px;
+//      color: @font-color;
+//      float: left;
+//    }
+//
+//  }
+//
+
+//
+//  .nav-cart {
+//    float: left;
+//    height: 45px;
+//    line-height: 45px;
+//    span.icon {
+//      font-size: 1.5rem;
+//      float: left;
+//      margin-right: 5px;
+//    }
+//    span.count {
+//      font-size: 1rem;
+//      float: left;
+//      //font-size:2rem;
+//      //position: relative;
+//      //left: -10px;
+//      //top: -10px;
+//    }
+//  }
+//
+//  .search {
+//    text-align: center;
+//    padding: 4px;
+//    float: left;
+//
+//    input, button {
+//      vertical-align: middle;
+//    }
+//  }
+//
+//  .search-results {
+//
+//    width: 50%;
+//    .pillow;
+//    border-radius: 4px;
+//    position: fixed;
+//    background-color: white;
+//    padding: 12px;
+//    //margin: 20px;
+//    top: 45px;
+//    //right: 180px;
+//    //left:180px;
+//    margin: 0 20px;
+//    display: block;
+//    //left: 180px;
+//    &.hidden {
+//      display: none;
+//    }
+//
+//    li a {
+//      padding: 4px 0;
+//    }
+//  }
+//
+//  .user-menu {
+//    .pillow;
+//    width: 150px;
+//    margin-right: 20px;
+//    //border-bottom: 1px solid grey;
+//    //border-left: 1px solid grey;
+//    //border-right: 1px solid grey;
+//    background-color: @white;
+//    color: @font-color;
+//    //position: relative;
+//    //top: 0;
+//    //margin-top: 2px;
+//    float: left;
+//    /* width: 100%; */
+//    position: fixed;
+//    top: 45px;
+//    right: 0;
+//    //padding: 16px;
+//
+//    border-bottom-left-radius: 4px;
+//    border-bottom-right-radius: 4px;
+//    padding: 8px;
+//
+//    a {
+//      color: @font-color;
+//      //line-height: 32px;
+//    }
+//    ul {
+//      list-style: none;
+//      margin: 0;
+//      padding: 0;
+//      li {
+//        list-style: none;
+//        padding: 4px 8px;
+//        &:hover {
+//          background-color: @white-dark;
+//
+//        }
+//      }
+//    }
+//  }
+//  .mobile {
+//    height: 45px;
+//    font-size: 35px;
+//    float: left;
+//  }
+//}
+//
+//.sidebar-push {
+//  margin-left: 180px;
+//}
+//
+//@media only screen and (max-width: @breakpoint) {
+//  .user .name {
+//    display: none !important;
+//  }
+//
+//}

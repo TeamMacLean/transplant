@@ -1,0 +1,47 @@
+{
+  "name": "transplant",
+  "version": "1.0.0",
+  "description": "TSL Plant Transformation",
+  "main": "server.js",
+  "dependencies": {
+    "ejs": "^2.5.2",
+    "email-templates": "^2.5.4",
+    "express-session": "^1.14.2",
+    "gulp": "^3.9.1",
+    "gravatar": "^1.6.0",
+    "less-middleware": "^2.2.0",
+    "nodemailer": "^2.6.4",
+    "nodemailer-smtp-transport": "^2.7.2",
+    "passport-ldapauth": "^0.5.0",
+    "thinky": "^2.3.8",
+    "multer": "latest",
+    "body-parser": "latest",
+    "express": "latest",
+    "session-rethinkdb": "latest",
+    "passport": "latest",
+    "cookie-parser": "latest",
+    "express-flash": "latest"
+  },
+  "devDependencies": {
+    "gulp-babel": "^6.1.2",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.0.0"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeamMacLean/transplant.git"
+  },
+  "keywords": [
+    "tsl"
+  ],
+  "author": "Martin Page",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TeamMacLean/transplant/issues"
+  },
+  "homepage": "https://github.com/TeamMacLean/transplant#readme"
+}

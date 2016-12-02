@@ -1,37 +1,23 @@
 <% include ./head-no-nav.ejs %>
 
-<nav class="nav">
+<nav>
     <div class="brand">
-        <a href="/">
+        <a href="/" class="block">
             <!--<img src="/img/brand.png">-->
-            <span>SynBio</span>
+            <span>TransPlant</span>
         </a>
     </div>
     <div class="pull-right nav-top-right">
-
-        <% if(locals.signedInUser){ %>
-        <div class="search">
-            <input id="seach-input" type="text" placeholder="Search">
-        </div>
-
-        <div id="search-results" class="search-results hidden">
-            <ul></ul>
-        </div>
-
-
-        <a href="/cart" class="nav-cart">
-            <span class="icon" data-icon="&#xe015;"></span>
-            <span class="count"><%- locals.signedInUser.cart.items.length %></span>
-        </a>
-        <% } %>
 
         <div class="user">
             <% if(locals.signedInUser){ %>
 
             <!--<a href="/whoami">-->
+            <% if(locals.signedInUser.iconURL){ %>
             <div class="image">
                 <img src="<%- locals.signedInUser.iconURL %>">
             </div>
+            <% } %>
             <div class="name">
                 <span><%- locals.signedInUser.name %></span>
             </div>
@@ -54,7 +40,7 @@
 
             <% } else { %>
             <div class="name">
-                <a href="/signin">Sign in</a>
+                <a href="/signin" class="block">Sign in</a>
             </div>
             <% } %>
         </div>

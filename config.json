@@ -1,18 +1,12 @@
 {
-  "port": "3000",
+  "port": "1337",
   "secret": "cats",
-  "dbName": "synbioshop",
+  "dbName": "transplant",
   "defaultUserIcon": "/img/default_icon.jpg",
   "uploadRoot": "public/uploads",
   "uploadRootURL": "/uploads",
-  "imageTypesAllowed": [
-    "png",
-    "jpg",
-    "jpeg",
-    "gif"
-  ],
   "tmpDir": "/tmp",
-  "baseURL": "http://127.0.0.1:3000",
+  "baseURL": "http://127.0.0.1:1337",
   "ldap": {
     "url": "ldap://dc2.nbi.ac.uk:389",
     "bindDn": "ldapuser",
@@ -23,8 +17,7 @@
   "email": {
     "host": "mail.nbi.ac.uk",
     "port": "25",
-    "from": "TSL SynBio ◉ <mark.youles@tsl.ac.uk>",
-    "emailDomain": "@nbi.ac.uk"
+    "from": "TSL Plant Transformation ◉ <transplant@tsl.ac.uk>"
   },
   "admins": [
     "pagem"
