@@ -9,20 +9,27 @@
 //  padding: 0 0 12px 0;
 //}
 //
-input, textarea {
+
+//pillow inputs
+
+input, textarea, .react-datepicker__tether-element, .react-datepicker__input-container {
   margin: 0;
-  width: 100%;
+  //width: 100%;
   color: @font-color;
+  width: 100%;
 
   @media (max-width: @breakpoint) {
-    //.narrow-center {
     width: 100%;
-    //}
+
   }
 
   &.center {
     text-align: center;
   }
+}
+
+input {
+  text-align: center;
 }
 
 input[type="email"],
@@ -32,7 +39,8 @@ input[type="search"],
 input[type="text"],
 input[type="tel"],
 input[type="url"],
-input[type="password"] {
+input[type="password"],
+input[role="combobox"] {
   height: @input-height;
   padding: 6px 10px;
   background-color: #ffffff;
@@ -41,10 +49,9 @@ input[type="password"] {
   box-shadow: none;
   box-sizing: border-box;
   vertical-align: middle; //TODO
+  max-width: 100%;
 
-  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  .transition-border;
 
   &.has-icon {
     padding-right: 43.75px;
@@ -83,6 +90,11 @@ textarea, select {
   border-radius: 4px;
   box-shadow: none;
   box-sizing: border-box;
+  &:focus, &:active {
+    border: 1px solid @primary;
+    outline: 0;
+  }
+
 }
 
 .form-group {
@@ -122,6 +134,12 @@ textarea, select {
   background: #FFF;
   padding: 15px;
   border-radius: 4px;
+
+  p{
+    margin-bottom:15px;
+    font-size: 1.2rem;
+  }
+
 }
 
 .login-box {
@@ -134,12 +152,17 @@ textarea, select {
   }
 }
 
-input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0px 1000px #FFF inset;
+input, textarea, select {
+  outline: 0;
+  &:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #FFF inset;
+  }
 }
 
 fieldset {
   border: none;
+  padding: 8px 0;
+  margin: 0;
 }
 
 label {

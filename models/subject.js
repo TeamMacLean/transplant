@@ -2,17 +2,16 @@ const thinky = require('../lib/thinky');
 const type = thinky.type;
 const r = thinky.r;
 
-const Subject = thinky.createModel('Subject', {
+const Construct = thinky.createModel('Construct', {
     id: type.string(),
-    subjectID: type.string(),
-    position: type.number().default(0),
-    name: type.string().required(),
     createdAt: type.date().default(r.now()),
-    disabled: type.boolean().default(false)
+    name:type.string().required(),
+    backbone: type.string(),
+
+    // approved: type.boolean(), //TODO replace with approval object
+
 });
 
-module.exports = Subject;
-const Document = require('./document');
+//TODO will backbones, strains, selections, and tdna be shared?
 
-Subject.hasMany(Subject, 'subjects', 'id', 'subjectID');
-Subject.hasMany(Document, 'documents', 'id', 'subjectID');
+module.exports = Construct;

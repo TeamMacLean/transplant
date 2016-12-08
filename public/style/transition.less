@@ -1,5 +1,6 @@
-@time1: 300ms;
+@time1: 200ms;
 @type: ease;
+//@type: ease-in-out;
 
 .transition-background-color {
   -webkit-transition: background-color @time1 @type;
@@ -8,9 +9,32 @@
   transition: background-color @time1 @type;
 }
 
-.transition-color{
+.transition-color {
   -webkit-transition: color @time1 @type;
   -moz-transition: color @time1 @type;
   -o-transition: color @time1 @type;
   transition: color @time1 @type;
+}
+
+.transition-border {
+
+  -webkit-transition: border-color @time1 @type;
+  -moz-transition: border-color @time1 @type;
+  -o-transition: border-color @time1 @type;
+  transition: border-color @time1 @type;
+}
+
+.transition-all {
+  -webkit-transition: all @time1 @type;
+  -moz-transition: all @time1 @type;
+  -o-transition: all @time1 @type;
+  transition: all @time1 @type;
+}
+
+.transition-box-shadow {
+  -webkit-transition: -webkit-box-shadow @time1 @type;
+  -moz-transition: -moz-box-shadow @time1 @type;
+  -o-transition: box-shadow @time1 @type;
+  transition: box-shadow @time1 @type;
+
 }

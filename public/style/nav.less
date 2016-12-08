@@ -29,7 +29,12 @@ nav {
     }
     a {
       color: #FFF;
-
+    }
+    img {
+      height: @nav-height - 16;
+      width: auto;
+      float: left;
+      margin: 8px 8px 8px 0;
     }
   }
 
@@ -74,8 +79,12 @@ nav {
         text-align: center;
       }
       li {
+        .transition-all;
         &:hover {
-          background-color: darken(#FFF, 8%);
+          background-color: @primary;
+          a{
+            color: #FFFFFF;
+          }
         }
         a {
           display: block;

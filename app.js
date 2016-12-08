@@ -11,6 +11,7 @@ const cookieParser = require('cookie-parser');
 const flash = require('express-flash');
 const util = require('./lib/util.js');
 const routes = require('./routes');
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(require('less-middleware')(path.join(__dirname, 'public')));

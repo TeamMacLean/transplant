@@ -6,7 +6,7 @@
   "dependencies": {
     "body-parser": "latest",
     "cookie-parser": "latest",
-    "ejs": "^2.5.2",
+    "ejs": "^2.5.5",
     "email-templates": "^2.5.4",
     "express": "latest",
     "express-flash": "latest",
@@ -19,15 +19,26 @@
     "nodemailer-smtp-transport": "^2.7.2",
     "passport": "latest",
     "passport-ldapauth": "^0.5.0",
+    "react-datepicker": "^0.37.0",
     "session-rethinkdb": "latest",
     "thinky": "^2.3.8"
   },
   "devDependencies": {
+    "babel-loader": "^6.2.8",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
+    "css-loader": "^0.26.1",
     "gulp-babel": "^6.1.2",
     "gulp-rename": "^1.2.2",
-    "gulp-uglify": "^2.0.0"
+    "gulp-uglify": "^2.0.0",
+    "moment": "^2.17.1",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "react-textarea-autosize": "^4.0.5",
+    "react-typeahead": "latest",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.14.0",
+    "webpack-stream": "^3.2.0"
   },
   "scripts": {
     "test": "mocha",
