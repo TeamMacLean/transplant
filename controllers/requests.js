@@ -6,7 +6,10 @@ Requests.new = (req, res, next)=> {
 
 Requests.save = (req, res, next)=> {
     //send email to group leader to sign off request
-    return res.send('TODO');
+
+    console.log(req.body);
+
+    // return res.send('TODO');
 };
 
 module.exports = Requests;

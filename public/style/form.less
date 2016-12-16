@@ -12,6 +12,10 @@
 
 //pillow inputs
 
+*:focus {
+  outline: none;
+}
+
 input, textarea, .react-datepicker__tether-element, .react-datepicker__input-container {
   margin: 0;
   //width: 100%;
@@ -135,8 +139,8 @@ textarea, select {
   padding: 15px;
   border-radius: 4px;
 
-  p{
-    margin-bottom:15px;
+  p {
+    margin-bottom: 15px;
     font-size: 1.2rem;
   }
 
@@ -169,16 +173,11 @@ label {
   display: block;
   margin-bottom: 4px;
   font-size: 1.2rem;
-  font-weight: 300;
+  font-weight: @weight-light;
 }
 
-//
-//hr {
-//  margin-bottom: 32px;
-//
-//  border: 0;
-//  height: 0;
-//  border-top: 1px solid rgba(0, 0, 0, 0.1);
-//  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-//
-//}
+ul, li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}

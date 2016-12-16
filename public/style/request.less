@@ -26,12 +26,16 @@
 }
 
 .construct {
-  background-color: #FFFFFF;
-  border-radius: 4px;
-  border: 1px solid @grey;
-  padding: 16px;
-  margin-bottom: 16px;
+
+  //border: 1px solid @grey;
+
+  //padding: 16px;
+  margin-bottom: 32px;
   .pillow-hover;
+
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 
   .remove-button {
     color: @grey;
@@ -40,7 +44,7 @@
 
     .transition-color;
 
-    &:hover{
+    &:hover {
       color: @primary;
     }
 
@@ -48,23 +52,416 @@
     text-align: center;
     width: 100%;
     margin-top: 20px;
+
     @media only screen and (min-width: @breakpoint) {
-      margin-top: 0;
+      //margin-top: 0;
+      margin-top: 35px;
+      //margin-top: 34px;
       width: auto;
     }
   }
+
+  p, h1, h2, h3, h4, label {
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer */
+    -khtml-user-select: none; /* KHTML browsers (e.g. Konqueror) */
+    -webkit-user-select: none; /* Chrome, Safari, and Opera */
+    -webkit-touch-callout: none; /* Disable Android and iOS callouts*/
+  }
+
+  .construct-inner {
+    padding: 16px;
+    background-color: #FFFFFF;
+    border-top: 1px solid @grey;
+    border-bottom: 1px solid @grey;
+    border-left: 1px solid @grey;
+    border-radius: 4px 0 0 4px;
+
+    @media (max-width: @breakpoint) {
+      border: 1px solid @grey;
+      border-radius: 4px;
+    }
+  }
+
+  .tab {
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #FFFFFF;
+    //background-color: ;
+    //color: #FFFFFF;
+    border: 1px solid @grey;
+    font-weight: @weight-bold;
+
+    text-align: center;
+
+    .transition-background-color;
+    &:hover {
+      background-color: @primary;
+      color: #FFFFFF;
+    }
+
+    @media (min-width: @breakpoint) {
+      -webkit-box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
+      -moz-box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
+      box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
+
+
+      .rotate {
+
+        position: absolute;
+        /* width: 100%; */ /* (remove this) width before rotation! */
+        top: 50%;
+        height: 2px; /* actual text will overlap! */
+        margin-top: -1px; /* subtract half the height */
+        line-height: 0px; /* centre the text on the base line */
+        text-align: center;
+        left: 50%; /* added */
+        transform: translateX(-50%) rotate(90deg); /* added translateX */
+        white-space: nowrap;
+
+      }
+
+    }
+  }
+
+  @media only screen and (min-width: 768px) {
+    .is-table-row {
+      display: table;
+      width: 100%;
+      margin: 0;
+
+    }
+
+    .is-table-row .is-table-col {
+      float: none;
+      display: table-cell;
+      vertical-align: middle;
+      padding: 0;
+    }
+  }
+
 }
 
 .button {
   &.has-icon {
-    font-size: 3rem;
-    line-height: 3rem;
-    color:@primary;
-    &:hover{
-      color:#FFFFFF;
+    font-size: 1.4rem;
+    color: @primary;
+    &:hover {
+      color: #FFFFFF;
     }
   }
 
 }
 
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  opacity: 0.8;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+  filter: alpha(opacity=80);
+}
 
+.gu-hide {
+  display: none !important;
+}
+
+.gu-unselectable {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+.gu-transit {
+  opacity: 0.2;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+  filter: alpha(opacity=20);
+}
+
+//select box
+.react-select-box-container {
+  position: relative;
+  width: 240px;
+  display: inline-block;
+  background-color: #fff;
+  border-radius: 4px;
+  text-align: left;
+  //box-shadow: 0 0 2px rgba(0, 0, 0, .3);
+
+  border: 1px solid @grey;
+
+  &:active, &:focus {
+    border-color: @primary;
+  }
+}
+
+.react-select-box {
+  padding: 13px 0;
+  display: inline-block;
+  cursor: pointer;
+  border: none;
+  width: 100%;
+  text-align: left;
+  background-color: transparent;
+}
+
+.react-select-box:focus, .react-select-box:hover {
+  outline: 0;
+  //box-shadow: 0 0 4px @primary;
+  border: none;
+  background-color: inherit;
+}
+
+.react-select-box:before {
+  content: ' ';
+  z-index: 1;
+  position: absolute;
+  height: @input-height;
+  top: 0;
+  right: 34px;
+  border-left: 1px solid #CBD2D7;
+
+  &:active, &:focus {
+    border-color: @primary;
+  }
+
+}
+
+.react-select-box:after {
+  content: ' ';
+  position: absolute;
+  z-index: 1;
+  top: @input-height / 2;
+  right: 13px;
+  border-top: 6px solid @font-color;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+}
+
+.react-select-box-label,
+.react-select-box-option {
+  line-height: 16px;
+  font-size: 16px;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.react-select-box-label {
+  padding: 0 40px 0 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: @font-color;
+  height: 18px;
+}
+
+.react-select-box-empty .react-select-box-label {
+  color: @font-color;
+}
+
+.react-select-box-click-outside-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+}
+
+.react-select-box-clear {
+  position: absolute;
+  top: 0;
+  right: 0;
+  //width: 34px;
+  height: @input-height;
+  background-color: #fff;
+  text-indent: -9999em;
+  z-index: 3;
+  border: none;
+
+  &:hover, &:focus, &:active {
+    background-color: inherit;
+    color: inherit;
+    border: none;
+  }
+
+}
+
+.react-select-box-clear:before {
+  content: '×';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  z-index: 1;
+  border-radius: 100%;
+  font-size: 30px;
+  color: @grey;
+  line-height: 1;
+  height: @input-height;
+  text-indent: 0;
+  text-align: center;
+}
+
+.react-select-box-clear:hover,
+.react-select-box-clear:focus {
+  outline: 0;
+}
+
+.react-select-box-clear:hover:before,
+.react-select-box-clear:focus:before {
+  //background-color: @primary;
+}
+
+.react-select-box-hidden {
+  display: none
+}
+
+.react-select-box-options {
+  margin: 2px 0 0;
+  position: absolute;
+  padding: 10px 0;
+  width: 240px;
+  top: 100%;
+  left: 0;
+  z-index: 4;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .3);
+}
+
+.react-select-box-options-list {
+  list-style: none outside;
+  margin: 0;
+  padding: 0;
+}
+
+.react-select-box-option {
+  padding: 10px 20px;
+  margin: 0;
+  cursor: pointer;
+  display: block;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.react-select-box-option:hover {
+  color: @primary;
+  background-color: #f4f4f4;
+}
+
+.react-select-box-option-selected {
+  color: #CBD2D7;
+}
+
+.react-select-box-multi .react-select-box-option {
+  padding-left: 42px;
+  position: relative;
+}
+
+.react-select-box-multi .react-select-box-option:before {
+  content: ' ';
+  position: absolute;
+  line-height: 1;
+  text-align: center;
+  left: 8px;
+  top: 6px;
+  border-radius: 4px;
+  height: 20px;
+  width: 20px;
+  /* margin-right: 31px; */
+  border: 1px solid @font-color;
+  //background: #f9f9f9;
+  vertical-align: middle;
+}
+
+.react-select-box-multi .react-select-box-option-selected:before {
+  content: '✓';
+  font-size: 18px;
+}
+
+.react-select-box-multi .react-select-box-option-selected {
+  color: #1F3344;
+}
+
+.react-select-box-option:focus,
+.react-select-box-option-focused {
+  color: @primary;
+  outline: 0;
+  background-color: #DDE2E5;
+}
+
+.react-select-box-close {
+  color: @primary;
+  text-transform: uppercase;
+  background-color: transparent;
+  border: none;
+  padding: 5px 0;
+  display: block;
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+}
+
+.react-select-box-close:hover,
+.react-select-box-close:focus {
+  text-decoration: underline;
+  background-color: inherit;
+  border: none;
+}
+
+.react-select-box-empty .react-select-box-close {
+  color: #CBD2D7;
+}
+
+.react-select-box-native {
+  position: absolute;
+  left: -99999em;
+}
+
+///////select
+
+.is-focused {
+  > .Select-control, > .Select-menu-outer {
+    border: 1px solid @primary !important;
+  }
+}
+
+.Select-control {
+  border: 1px solid @grey !important;
+  border-color: @grey !important;
+}
+
+.Select-control, .Select-input, .Select-placeholder {
+  height: @input-height !important;
+  line-height: @input-height !important;
+  box-shadow: none !important;
+
+  > input {
+    padding: 0 !important;
+  }
+
+  &:hover {
+    box-shadow: none !important;
+  }
+
+}
+
+*[id^='react-select-'] > div.Select-input > input {
+  height: @input-height !important;
+  line-height: @input-height !important;
+  &:hover, &:focus, &:active {
+    border: none !important;
+  }
+}
+
+.button, button {
+  &.auto-overflow {
+    white-space: normal;
+    height: auto;
+  }
+}

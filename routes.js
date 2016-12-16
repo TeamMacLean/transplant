@@ -19,7 +19,8 @@ router.route('/signout')
 
 router.route('/new')
     .all(isAuthenticated)
-    .get(Requests.new);
+    .get(Requests.new)
+    .post(Requests.save);
 
 //LAST!
 router.route('*')
