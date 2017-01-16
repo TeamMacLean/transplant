@@ -4,6 +4,7 @@ const gravatar = require('gravatar');
 const renderError = require('../lib/renderError');
 const config = require('../config.json');
 const LOG = require('../lib/log');
+
 /**
  * render site index
  * @param req {request}
@@ -13,15 +14,31 @@ Auth.index = (req, res) => {
     res.render('index');
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 Auth.signIn = (req, res) => {
     res.render('signin');
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 Auth.signOut = (req, res) => {
     req.logout();
     res.redirect('/');
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 Auth.signInPost = (req, res, next) => {
     passport.authenticate('ldapauth', (err, user, info) => {
         if (err) {
@@ -30,19 +47,15 @@ Auth.signInPost = (req, res, next) => {
         }
         if (!user) {
             var message = 'Failed to sign in';
-            // var message = '';
             if (info && info.message) {
                 message += `, ${info.message}`;
             }
             return renderError(message, res);
-            //return res.render('error', {error: message});
         }
         req.logIn(user, err => {
             if (err) {
                 return next(err);
             }
-
-            console.log(user);
 
             req.user.iconURL = gravatar.url(req.user.mail);
 
@@ -56,7 +69,12 @@ Auth.signInPost = (req, res, next) => {
     })(req, res, next);
 };
 
-
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 Auth.whoami = (req, res, next) => {
     return res.redirect('/');
 };

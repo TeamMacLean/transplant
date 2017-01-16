@@ -3,11 +3,117 @@ import render from 'react-dom';
 import Textarea from 'react-textarea-autosize';
 import moment from 'moment';
 import Dragula from 'dragula';
-import TokenInput from 'react-tokeninput';
-
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import Shepherd from 'tether-shepherd';
+import 'tether-shepherd/dist/css/shepherd-theme-arrows.css'
 
+
+const speciesAndOptions = [
+    {
+        name: 'Arabidopsis thaliana', strains: [
+        {name: 'GL1', recommended: true},
+        {name: 'GV3101 (pMP90)', recommended: true},
+        {name: 'C58C1 pCH30'},
+        {name: 'GV2260'}
+    ]
+    },
+    {
+        name: 'Brachypodium distachyon', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Brassica juncea', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Brassica oleracea', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Camelina sativa', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Glycine max', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Hordeum vulgare', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Lotus japonicus', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Medicago truncatula', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Mirabilis jalapa', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Nicotiana benthamiana', strains: [
+        {name: 'AGL1', recommended: true},
+        {name: 'GV3101 (pMP90)', recommended: true}
+    ]
+    },
+    {
+        name: 'Nicotiana tabacum', strains: [
+        {name: 'AGL1', recommended: true},
+        {name: 'GV3101 (pMP90)', recommended: true},
+        {name: 'LBA4404'}
+    ]
+    },
+    {
+        name: 'Oryza sativa', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Solanum lycopersicum', strains: [
+        {name: 'AGL1', recommended: true}
+    ]
+    },
+    {
+        name: 'Solanum tuberosum', strains: [
+        {name: 'AGL1', recommended: true},
+        {name: 'LBA4404,'},
+        {name: 'EHA105', recommended: true}
+    ]
+    }
+];
+
+// export for others scripts to use
+// window.$ = $;
+// window.jQuery = jQuery;
+
+function ToggleClass(el, className) {
+    if (el.classList) {
+        el.classList.toggle(className);
+    } else {
+        var classes = el.className.split(' ');
+        var existingIndex = classes.indexOf(className);
+
+        if (existingIndex >= 0)
+            classes.splice(existingIndex, 1);
+        else
+            classes.push(className);
+
+        el.className = classes.join(' ');
+    }
+}
 
 function guid() {
     function s4() {
@@ -25,15 +131,59 @@ const Configuration = React.createClass({
     getInitialState: function getInitialState() {
         return {
             colors: [],
-            selectedGenotypes: [],
-            selectedStrains: [],
-            selectedVectors: []
+            genotypes: [],
+            // selectedStrains: [],
+            selectedStrain: null,
+            selectedVectors: [{
+                label: "Rif",
+                value: "Rifampicin"
+            }],
+            availableVectors: [
+                {
+                    label: "Rif",
+                    value: "Rifampicin"
+                },
+                {
+                    label: "Kan",
+                    value: "Kanamycin"
+                },
+                {
+                    label: "Spec",
+                    value: "Spectinomycin"
+                },
+                {
+                    label: "Tet",
+                    value: "Tetracycline"
+                },
+                {
+                    label: "Hygr",
+                    value: "Hygromycin"
+                },
+                {
+                    label: "Kan/Hyg",
+                    value: "Kanamycin/Hygromycin"
+                }
+            ]
         }
     },
     render: function render() {
-        var strains = ['GV3101 (pMP90)', 'AGL1', 'GALLS', 'LBA4404', 'EHA105', 'C58'].map(s=> {
-            return {value: s, label: s}
-        });
+
+
+        var strains = [];
+
+        if (this.props.species) {
+
+            strains = this.props.species.value.strains.map(as => {
+
+                var recommendedAddon = as.recommended ? ' (recommended)' : '';
+
+                return {value: as, label: as.name + recommendedAddon};
+                // return as.name;
+            });
+
+        }
+
+
         var self = this;
         return (
             <li>
@@ -41,50 +191,64 @@ const Configuration = React.createClass({
                     <div className="col11">
                         <div className="row">
                             <div className="col4">
-                                <fieldset>
-                                    <label className="center">Strains</label>
-                                    <p>//show reccomended option</p>
-                                    <Select.Creatable
-                                        name={"config-strains" + self.props.uid}
-                                        value={this.state.selectedStrains}
-                                        options={strains}
-                                        onChange={function (selectedStrains) {
-                                            self.setState({selectedStrains});
-                                        }}
-                                    />
-                                </fieldset>
+                                <div id="strain-select">
+                                    <fieldset>
+                                        <label className="center"><span className="italic">Agro.</span> Strain</label>
+                                        <Select.Creatable
+                                            name={"config-strain#" + self.props.constructID + '#' + self.props.uid}
+                                            value={this.state.selectedStrain}
+                                            options={strains}
+                                            onChange={function (selectedStrain) {
+                                                self.setState({
+                                                    selectedStrain: {
+                                                        value: selectedStrain,
+                                                        label: selectedStrain.value.name
+                                                    }
+                                                });
+                                            }}
+                                            noResultsText="No Strain added"
+                                            placeholder="Select Agro. Strain"
+                                        />
+                                    </fieldset>
+                                </div>
                             </div>
                             <div className="col4">
-                                <fieldset>
-                                    <label className="center">Genotypes</label>
+                                <div id="genotypes-pick">
+                                    <fieldset>
+                                        <label className="center">Genotype(s)</label>
 
-                                    <Select
-                                        name={"config-genomes" + self.props.uid}
-                                        value={this.state.selectedGenotypes}
-                                        multi={true}
-                                        options={this.props.genotypes}
-                                        onChange={function (selectedGenotypes) {
-                                            self.setState({selectedGenotypes});
-                                        }}
-                                        noResultsText="No Genotypes added"
-                                        placeholder="Select Genotypes"
-                                    />
-                                </fieldset>
-                            </div >
+                                        <Select
+                                            name={"config-genomes#" + self.props.constructID + '#' + self.props.uid}
+                                            value={this.state.genotypes}
+                                            multi={true}
+                                            options={this.props.genotypes}
+                                            onChange={function (genotypes) {
+                                                self.setState({genotypes});
+                                            }}
+                                            noResultsText="No Genotypes added"
+                                            placeholder="Select Genotypes"
+                                        />
+                                    </fieldset>
+                                </div>
+                            </div>
 
                             <div className="col4">
-                                <fieldset>
-                                    <label className="center">Vectors</label>
-                                    <Select.Creatable
-                                        name={"config-vectors" + self.props.uid}
-                                        value={this.state.selectedVectors}
-                                        multi={true}
-                                        options={[]}
-                                        onChange={function (selectedVectors) {
-                                            self.setState({selectedVectors});
-                                        }}
-                                    />
-                                </fieldset>
+                                <div id="vector-select">
+                                    <fieldset>
+                                        <label className="center">Vector Selection</label>
+                                        <Select.Creatable
+                                            name={"config-vectors#" + self.props.constructID + '#' + self.props.uid}
+                                            value={this.state.selectedVectors}
+                                            multi={true}
+                                            options={this.state.availableVectors}
+                                            onChange={function (selectedVectors) {
+                                                self.setState({selectedVectors});
+                                            }}
+                                            noResultsText="No Vector selected"
+                                            placeholder="Select Vector"
+                                        />
+                                    </fieldset>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -110,6 +274,7 @@ const Construct = React.createClass({
             strain: '',
             vector: '',
             tdna: '',
+            // constructID: guid(),
             configurations: [{key: guid()}]
         };
     },
@@ -143,52 +308,63 @@ const Construct = React.createClass({
                             <div className="construct-inner">
                                 <div className="row">
                                     <div className="col4">
-                                        <fieldset>
-                                            <label className="center">Name</label>
-                                            <input type="text"
-                                                   name={"name" + self.props.uid}
-                                                   placeholder="TODO"
-                                                   required="true"
-                                            />
-                                        </fieldset>
+                                        <div id="name-select">
+                                            <fieldset>
+                                                <label className="center">Name</label>
+                                                <input type="text"
+                                                       name={"name#" + self.props.uid}
+                                                       placeholder=""
+                                                       required="true"
+                                                />
+                                            </fieldset>
+                                        </div>
                                     </div>
 
                                     <div className="col4">
-                                        <fieldset>
-                                            <label className="center">Backbone</label>
-                                            <input type="text"
-                                                   name={"backbone" + self.props.uid}
-                                                   placeholder="TODO"
-                                                   required="true"
-                                            />
-                                        </fieldset>
+                                        <div id="backbone-select">
+                                            <fieldset>
+                                                <label className="center">Binary Vector Backbone</label>
+                                                <input type="text"
+                                                       name={"backbone#" + self.props.uid}
+                                                       placeholder=""
+                                                       required="true"
+                                                />
+                                            </fieldset>
+                                        </div>
                                     </div>
                                     <div className="col4">
-                                        <fieldset>
-                                            <label className="center">T-DNA</label>
-                                            <input type="text"
-                                                   name={"t-dna" + self.props.uid}
-                                                   placeholder="TODO"
-                                                   required="true"
-                                            />
-                                        </fieldset>
+                                        <div id="tdna-select">
+                                            <fieldset>
+                                                <label className="center">T-DNA Selection</label>
+                                                <input type="text"
+                                                       name={"t-dna#" + self.props.uid}
+                                                       placeholder=""
+                                                       required="true"
+                                                />
+                                            </fieldset>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <hr/>
+
                                 <div className="row">
                                     <div className="col12">
-                                        <h3 className="center">Configurations</h3>
+                                        <h3 className="center">Strains</h3>
                                         <ul>
                                             {this.state.configurations.map(c=> {
-                                                return <Configuration key={c.key} genotypes={this.props.genotypes}
+                                                return <Configuration key={c.key} constructID={self.props.uid}
+                                                                      genotypes={this.props.genotypes}
+                                                                      species={this.props.species}
                                                                       removeConfig={this.removeConfig} uid={c.key}
                                                 />
                                             })}
                                         </ul>
                                         <div className="row">
                                             <div className="col12">
-                                                <div className="wide button tall has-icon" onClick={this.addConfig}>ADD
-                                                    CONFIGURATION
+                                                <div id="add-strain-button" className="wide button tall has-icon"
+                                                     onClick={this.addConfig}>ADD
+                                                    STRAIN
                                                 </div>
                                             </div>
                                         </div>
@@ -211,18 +387,186 @@ const Construct = React.createClass({
 
 const App = React.createClass({
     displayName: 'app',
-    componentDidMount: function componentDidMount() {
-        this.addConstruct();
-        Dragula([document.getElementById('constructs')])
-
-    },
     getInitialState: function getInitialState() {
         return {
             date: moment().format('DD/MM/YYYY'),
             constructs: [],
             options: [],
             genotypes: [],
+            species: speciesAndOptions.map(sao=> {
+                return {value: sao, label: sao.name};
+            }),
+            selectedSpecies: null,
+            tour: null,
+            tourHidden: false
         };
+    },
+    toggleTour: function toggleTour() {
+        //todo show toggle-tour
+        var toggle = document.querySelectorAll('#toggle-tutorial');
+
+        if (toggle && toggle.length) {
+            ToggleClass(toggle[0], 'hidden');
+        }
+
+        console.log(this.state);
+
+        if (this.state.tourHidden) {
+            // this.state.tour.show();
+            this.state.tour.start();
+            this.setState({tourHidden: false});
+        } else {
+            // this.state.tour.hide();
+            this.state.tour.cancel();
+            this.setState({tourHidden: true});
+        }
+
+
+    },
+    componentDidMount: function componentDidMount() {
+
+        var self = this;
+
+        this.addConstruct();
+
+        Dragula([document.getElementById('constructs')]);
+
+        let tour = new Shepherd.Tour({
+            defaults: {
+                classes: 'shepherd-theme-arrows'
+            }
+        });
+
+        this.setState({tour});
+
+
+        //TODO on step toggle item as active
+
+        // tour.on('show', function (event) {
+        //     // var el = document.querySelectorAll(event.step.getAttachTo().element);
+        //     // console.log(event.step.getAttachTo(),el);
+        //     ToggleClass(event.step.getAttachTo().element, 'tour-active')
+        // });
+        // tour.on('hide', function (event) {
+        //     // var el = document.querySelectorAll(event.step.getAttachTo().element);
+        //     // console.log(el);
+        //     ToggleClass(event.step.getAttachTo().element, 'tour-active')
+        // });
+
+        var buttons = [
+            {
+                text: 'Exit',
+                classes: 'shepherd-button-secondary',
+                action: function () {
+
+                    self.toggleTour();
+
+                    // //todo show toggle-tour
+                    // var toggle = document.querySelectorAll('#toggle-tutorial');
+                    //
+                    // if (toggle && toggle.length) {
+                    //     ToggleClass(toggle[0], 'hidden');
+                    // }
+                    // return tour.hide();
+                }
+            }, {
+                text: 'Next',
+                action: tour.next,
+                classes: 'shepherd-button-example-primary'
+            }
+        ];
+
+        tour.addStep('species', {
+            // title: 'Species',
+            text: 'Select a species for this TRF from the dropdown list.',
+            attachTo: '#species-select bottom',
+            buttons: buttons
+        });
+
+        tour.addStep('genotype', {
+            // title: 'Species',
+            text: 'Type all of your genotypes that you will use in this TRF here. You can enter more than one.',
+            attachTo: '#genotype-select bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('construct-name', {
+            // title: 'Species',
+            text: 'Type the name of your first construct and the binary vector backbone.',
+            attachTo: '#name-select bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('tdna', {
+            // title: 'Species',
+            text: 'Select the T-DNA selection from the dropdown list, or enter your own.  (Assuming they have this option to type new ones, I’ve forgotten if we talked about it).',
+            attachTo: '#tdna-select bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('strain', {
+            // title: 'Species',
+            text: 'There you can select which A. tumefaciens strain from the dropdown list. Only plant species compatible strains will be available.  (I will explain this at next meeting).',
+            attachTo: '#strain-select bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('genotypes', {
+            // title: 'Species',
+            text: 'Select which genotypes, from the list you previously entered, that you would like transformed. You can select multiple.',
+            attachTo: '#genotypes-pick bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('select-vector', {
+            // title: 'Species',
+            text: 'Now select the binary vector selection. The antibiotic required for your Agro. strain cannot be removed.  (I will explain this at next meeting).',
+            attachTo: '#vector-select bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('another-agro', {
+            // title: 'Species',
+            text: 'If you want to add another Agro. strain for this construct, you can click here after this tutorial.',
+            attachTo: '#add-strain-button bottom',
+            buttons: buttons
+        });
+        tour.addStep('add more constructs', {
+            // title: 'Species',
+            text: 'You can also add more constructs after this tutorial.',
+            attachTo: '#add-construct-button bottom',
+            buttons: buttons
+        });
+
+
+        tour.addStep('addition-info', {
+            // title: 'Species',
+            text: 'If you have any additional information we should know, please enter it here, or contact us.',
+            attachTo: '#notes top',
+            buttons: buttons
+        });
+        tour.addStep('prootities', {
+            // title: 'Species',
+            text: 'If you have any construct priorities, simply click and drag to prioritise. We will work from the top.',
+            attachTo: '#constructs bottom',
+            buttons: buttons
+        });
+        tour.addStep('finished', {
+            // title: 'Species',
+            text: 'Finally, when you are finished, submit here and your request will be sent for authentication.',
+            attachTo: '#submit top',
+            buttons: buttons
+        });
+
+
+        tour.start();
+
     },
     addConstruct: function () {
         const uid = guid();
@@ -243,135 +587,156 @@ const App = React.createClass({
     render: function render() {
         const self = this;
         return (
-            <form method="post" action="/new">
+            <div>
+                <form method="post" action="/new">
 
-                <p>Add shpard tutorial</p>
+                    <section>
+                        <div className="row">
+                            <div className="col12">
+                                <h1 className="center">New Request</h1>
+                            </div>
+                        </div>
+                        {/*</section>*/}
+                        {/*<section>*/}
+                        <div className="row">
+                            <div className="col4 center">
+                                <fieldset>
+                                    <label>Date</label>
+                                    <input type="text" id="date" name="date" value={this.state.date} readOnly="true"
+                                           required="true"/>
+                                </fieldset>
+                            </div>
+                            <div className="col4 center">
+                                <fieldset>
+                                    <label>Name</label>
+                                    <input type="text" defaultValue={window.signedInUser.name} readOnly="true"
+                                           required="true"/>
+                                </fieldset>
+                            </div>
+                            <div className="col4 center">
+                                <fieldset>
+                                    <label>Group Leader</label>
 
-                <div className="row">
-                    <div className="col12">
-                        <h1 className="center">New Request</h1>
-                    </div>
+                                    {window.adminInfo.boss ?
+                                        <input type="text" readOnly="true" required="true"
+                                               value={window.adminInfo.boss.name}/> :
+                                        <input type="text" required="true"/>}
+
+
+                                </fieldset>
+                            </div>
+                        </div>
+                    </section>
+
+                    <hr/>
+
+                    <section>
+                        <div className="row">
+                            <div className="col6">
+                                <div id="species-select">
+                                    <fieldset>
+                                        <h2 className="center">Species</h2>
+
+                                        <Select
+                                            name={"config-genomes#" + self.props.uid}
+                                            value={this.state.selectedSpecies}
+                                            multi={false} //TODO this is probebly default
+                                            options={this.state.species} //TODO get list from elliott
+                                            onChange={function (selectedSpecies) { //TODO IF NOT col-0 flag it up
+                                                self.setState({selectedSpecies});
+
+                                            }}
+                                            noResultsText="No Species added"
+                                            placeholder="Select Species"
+                                        />
+
+
+                                        <p>If not shown in the list please <a href="#">contact us</a></p>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div className="col6">
+                                <div id="genotype-select">
+                                    <fieldset>
+                                        <h2 className="center">Genotype(s)</h2>
+
+
+                                        <Select.Creatable
+                                            name={"config-genotypes#" + self.props.constructID + '#' + self.props.uid}
+                                            value={this.state.genotypes}
+                                            className="genotype-select"
+                                            multi={true}
+                                            onChange={function (genotypes) {
+                                                self.setState({genotypes});
+                                            }}
+                                            noResultsText="No Genotype(s) added"
+                                            placeholder="Select Genotype(s)"
+                                        />
+
+
+                                    </fieldset>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    <hr/>
+
+                    <section>
+
+                        <h2 className="center">Constructs</h2>
+
+                        <div id="constructs">
+                            {/*{this.state.constructs}*/}
+
+                            {this.state.constructs.map(c=> {
+                                return <Construct uid={c.uid} key={c.uid}
+                                                  species={this.state.selectedSpecies}
+                                                  removeConstruct={this.removeConstruct}
+                                                  genotypes={this.state.genotypes}
+                                />
+                            })}
+
+                        </div>
+
+                        <p><span className="tip">Tip: You can drag constructs to set your priority</span></p>
+
+                        <div className="row">
+                            <div className="col12">
+                                <div id="add-construct-button" className="wide button tall has-icon"
+                                     onClick={this.addConstruct}>ADD CONSTRUCT
+                                </div>
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <hr/>
+
+                    <section>
+                        <div id="notes">
+                            <fieldset>
+                                <h2 className="center">Notes</h2>
+                                <Textarea rows={3} className="wide" name="notes"/>
+                            </fieldset>
+                        </div>
+                    </section>
+
+                    <hr/>
+
+                    <section>
+                        <div id="submit">
+                            <fieldset>
+                                <input type="submit" className="wide success tall" value="Submit"/>
+                            </fieldset>
+                        </div>
+                    </section>
+                </form>
+                <div id="toggle-tutorial" className="hidden" onClick={self.toggleTour}>
+                    <span>Show Tutorial</span>
                 </div>
-                <div className="row">
-                    <div className="col4 center">
-                        <fieldset>
-                            <label>Date</label>
-                            <input type="text" id="date" name="date" value={this.state.date} readOnly="true"
-                                   required="true"/>
-                        </fieldset>
-                    </div>
-                    <div className="col4 center">
-                        <fieldset>
-                            <label>Name and Lab .No.</label>
-                            <input type="text" defaultValue={window.signedInUser.name} readOnly="true" required="true"/>
-                        </fieldset>
-                    </div>
-                    <div className="col4 center">
-                        <fieldset>
-                            <label>Group Leader</label>
-                            <input type="text" readOnly="true" required="true"/>
-                        </fieldset>
-                    </div>
-                </div>
-
-                <hr/>
-
-                <div className="row">
-                    <div className="col6">
-                        <fieldset>
-                            <h2 className="center">Species</h2>
-                            <Select
-                                name={"config-genomes" + self.props.uid}
-                                value={this.state.selectedGenotypes}
-                                multi={true}
-                                options={this.props.genotypes}
-                                onChange={function (selectedGenotypes) {
-                                    self.setState({selectedGenotypes});
-                                }}
-                                noResultsText="No Genotypes added"
-                                placeholder="Select Genotypes"
-                            />
-                            <p>If not shown in the list please <a href="#">contact us</a></p>
-                        </fieldset>
-                    </div>
-                    <div className="col6">
-                        <fieldset>
-                            <h2 className="center">Genotypes</h2>
-                            <TokenInput
-                                onSelect={function (a) {
-
-                                    if (/\S/.test(a)) {
-                                        // string is not empty and not just whitespace
-                                        if (self.state.genotypes.filter(g=> {
-                                                return g.name == a;
-                                            }).length < 1) {
-                                            self.setState({
-                                                genotypes: self.state.genotypes.concat([{
-                                                    key: guid(),
-                                                    name: a,
-                                                    id: a,
-                                                    value: a,
-                                                    label: a
-                                                }])
-                                            });
-                                        }
-                                    }
-                                }}
-                                onRemove={function (a) {
-                                    self.setState({
-                                        genotypes: self.state.genotypes.filter(x=> {
-                                            {
-                                            }
-                                            return x != a
-                                        })
-                                    });
-                                }}
-                                onInput={function (a) {
-                                    return null;
-                                }}
-                                selected={self.state.genotypes}
-                                placeholder='List all here'
-                            />
-                        </fieldset>
-                    </div>
-
-                </div>
-
-
-                <hr/>
-
-                <h2 className="center">Constructs</h2>
-
-                <div id="constructs">
-                    {/*{this.state.constructs}*/}
-
-                    {this.state.constructs.map(c=> {
-                        return <Construct uid={c.uid} key={c.uid}
-                                          removeConstruct={this.removeConstruct}
-                                          genotypes={this.state.genotypes}
-                        />
-                    })}
-
-                </div>
-
-                <p><span className="tip">Tip: You can drag constructs to set your priority</span></p>
-
-                <div className="row">
-                    <div className="col12">
-                        <div className="wide button tall has-icon" onClick={this.addConstruct}>ADD CONSTRUCT</div>
-                    </div>
-                </div>
-
-                <hr/>
-
-                <fieldset>
-                    <h2 className="center">Notes</h2>
-                    <Textarea rows={3} className="wide"/>
-                </fieldset>
-                <fieldset>
-                    <input type="submit" className="wide" value="Submit"/>
-                </fieldset>
-            </form>
+            </div>
         )
     }
 });

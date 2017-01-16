@@ -1,10 +1,12 @@
 <% include ../head.ejs %>
 
 <div class="container">
-
     <div id="app"></div>
-
 </div>
+
+<% if(typeof adminInfo != 'undefined'){ %>
+<script>window.adminInfo = <%- JSON.stringify(adminInfo) %>;</script>
+<% } %>
 
 <script src="/js/app.js"></script>
 <% include ../foot.ejs %>

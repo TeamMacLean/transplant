@@ -1,8 +1,30 @@
+//input {
+//  line-height: @input-height !important;
+//  height: @input-height !important;
+//}
+
+input[type="submit"] {
+  &.tall {
+    font-size: 1.4rem;
+    text-transform: uppercase;
+  }
+  &.success {
+    background-color: @primary;
+    color: #FFF;
+    border-color: @primary;
+    &:hover {
+      background-color: @primary-dark;
+      border-color: @primary-dark;
+      color: #FFF;
+    }
+  }
+}
+
 .typeahead-selector {
   //width: 188px;
+  .pillow;
   width: 100%;
   display: block;
-  .pillow;
   margin: 0;
   padding: 0;
   background-color: #FFFFFF;
@@ -13,22 +35,21 @@
     padding: 8px;
     background-color: #FFFFFF;
     display: block;
+
     &:hover {
       background-color: @grey;
     }
+
     a {
       display: block;
       color: @primary;
-
     }
   }
 
 }
 
 .construct {
-
   //border: 1px solid @grey;
-
   //padding: 16px;
   margin-bottom: 32px;
   .pillow-hover;
@@ -93,36 +114,36 @@
     //color: #FFFFFF;
     border: 1px solid @grey;
     font-weight: @weight-bold;
-
     text-align: center;
 
     .transition-background-color;
     &:hover {
       background-color: @primary;
       color: #FFFFFF;
+      border: none;
     }
 
     @media (min-width: @breakpoint) {
-      -webkit-box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
-      -moz-box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
-      box-shadow: inset 13px 0 15px -7px rgba(0, 0, 0, 0.15);
+      -webkit-box-shadow: inset 10px 0 10px -7px rgba(0, 0, 0, 0.1);
+      -moz-box-shadow: inset 10px 0 10px -7px rgba(0, 0, 0, 0.1);
+      box-shadow: inset 10px 0 10px -7px rgba(0, 0, 0, 0.1);
 
+      //height: 40%;
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
 
       .rotate {
-
         position: absolute;
         /* width: 100%; */ /* (remove this) width before rotation! */
         top: 50%;
         height: 2px; /* actual text will overlap! */
         margin-top: -1px; /* subtract half the height */
-        line-height: 0px; /* centre the text on the base line */
+        line-height: 0; /* centre the text on the base line */
         text-align: center;
         left: 50%; /* added */
         transform: translateX(-50%) rotate(90deg); /* added translateX */
         white-space: nowrap;
-
       }
-
     }
   }
 
@@ -131,7 +152,6 @@
       display: table;
       width: 100%;
       margin: 0;
-
     }
 
     .is-table-row .is-table-col {
@@ -310,10 +330,10 @@
   outline: 0;
 }
 
-.react-select-box-clear:hover:before,
-.react-select-box-clear:focus:before {
-  //background-color: @primary;
-}
+//.react-select-box-clear:hover:before,
+//.react-select-box-clear:focus:before {
+//background-color: @primary;
+//}
 
 .react-select-box-hidden {
   display: none
@@ -402,7 +422,7 @@
   display: block;
   text-align: center;
   width: 100%;
-  font-weight: bold;
+  font-weight: @weight-bold;
   cursor: pointer;
   outline: none;
 }
@@ -425,6 +445,55 @@
 
 ///////select
 
+.Select-value-label {
+  //line-height: line-height: inherit;
+  float: left;
+  background-color: @primary;
+  font-size: initial !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #FFFFFF !important;
+  border-radius: 4px !important;
+  font-weight: @weight-bold !important;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+
+.Select--single > .Select-control .Select-value {
+  padding: 3px 6px;
+}
+
+.Select-value-icon {
+  float: right;
+  background-color: @primary;
+  border: none !important;
+  margin: 0 0 0 4px;
+  padding: 0 !important;
+  font-size: 39px !important;
+  line-height: 14px !important;
+  font-weight: @weight-light !important;
+}
+
+.Select--multi .Select-value {
+  display: inline-block !important;
+  border-radius: 4px !important;
+  padding: 4px !important;
+  background-color: #FB5F4B !important;
+  color: #FFFFFF !important;
+  margin-right: 4px !important;
+  margin-bottom: 4px !important;
+  .transition-background-color;
+  font-weight: @weight-bold !important;
+
+  border: none !important;
+}
+
+.Select--multi .Select-value-icon:hover, .Select--multi .Select-value-icon:focus {
+  background-color: inherit !important;
+  color: #FFFFFF !important;
+}
+
+////
 .is-focused {
   > .Select-control, > .Select-menu-outer {
     border: 1px solid @primary !important;
@@ -433,7 +502,6 @@
 
 .Select-control {
   border: 1px solid @grey !important;
-  border-color: @grey !important;
 }
 
 .Select-control, .Select-input, .Select-placeholder {
@@ -464,4 +532,93 @@
     white-space: normal;
     height: auto;
   }
+}
+
+//body.tour {
+//form {
+//  * {
+//    @blur-amount: 1px;
+//    -webkit-filter: blur(@blur-amount);
+//    -moz-filter: blur(@blur-amount);
+//    -o-filter: blur(@blur-amount);
+//    -ms-filter: blur(@blur-amount);
+//    filter: blur(@blur-amount);
+//  }
+//}
+//
+//*:hover {
+//  -webkit-filter: blur(0px) !important;
+//  -moz-filter: blur(0px) !important;
+//  -o-filter: blur(0px) !important;
+//  -ms-filter: blur(0px) !important;
+//  filter: blur(0px) !important;
+//}
+
+//
+//#species-select {
+//  * {
+//    -webkit-filter: blur(0px) !important;
+//    -moz-filter: blur(0px) !important;
+//    -o-filter: blur(0px) !important;
+//    -ms-filter: blur(0px) !important;
+//    filter: blur(0px) !important;
+//  }
+//}
+
+.italic {
+  font-style: italic;
+}
+
+section {
+  padding-top: 16px;
+  padding-bottom: 32px;
+  //border-bottom: 1px @primary solid;
+}
+
+.ic-tokeninput-button {
+  display: none;
+}
+
+.ic-token {
+  display: inline-block;
+
+  border-radius: 4px;
+
+  padding: 4px;
+
+  background-color: @primary;
+  color: #FFFFFF;
+
+  margin-right: 4px;
+  margin-bottom: 4px;
+
+  .transition-background-color;
+
+  font-weight: @weight-bold;
+
+  &:hover {
+    background-color: @primary-dark;
+  }
+
+}
+
+.ic-token-delete-button {
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+.shepherd-element.shepherd-theme-arrows {
+  max-width: @container-width !important;
+}
+
+#toggle-tutorial {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  color: #FFFFFF;
+  background-color: #434A54;
+  opacity: 0.8;
+  padding: 8px;
+  position: fixed;
+  bottom: 0;
+  right: 10px;
 }

@@ -20,7 +20,8 @@
     "passport": "latest",
     "passport-ldapauth": "^0.5.0",
     "session-rethinkdb": "latest",
-    "thinky": "^2.3.8"
+    "thinky": "^2.3.8",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "babel-loader": "^6.2.8",
@@ -36,8 +37,8 @@
     "react-dom": "^15.4.1",
     "react-select": "^1.0.0-rc.2",
     "react-textarea-autosize": "^4.0.5",
-    "react-tokeninput": "^2.2.2",
     "style-loader": "^0.13.1",
+    "tether-shepherd": "^1.8.1",
     "webpack": "^1.14.0",
     "webpack-stream": "^3.2.0"
   },
