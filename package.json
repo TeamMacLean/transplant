@@ -19,10 +19,10 @@
     "nodemailer-smtp-transport": "^2.7.2",
     "passport": "latest",
     "passport-ldapauth": "^0.5.0",
+    "request": "^2.79.0",
     "session-rethinkdb": "latest",
     "thinky": "^2.3.8",
-    "xml2js": "^0.4.17",
-    "request": "latest"
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "babel-loader": "^6.2.8",

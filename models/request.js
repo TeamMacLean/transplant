@@ -16,3 +16,14 @@ module.exports = Request;
 
 const Construct = require('./construct');
 Request.hasMany(Construct, "constructs", "id", "requestID");
+
+
+
+//arab:
+// received
+// seeds sown
+// plants moved to long day
+// dipped (for other: transformed)
+// bagged
+// seeds harvested
+// seeds returned/complete (for other: complete)

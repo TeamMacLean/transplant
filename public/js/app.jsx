@@ -8,14 +8,14 @@ import 'react-select/dist/react-select.css';
 import Shepherd from 'tether-shepherd';
 import 'tether-shepherd/dist/css/shepherd-theme-arrows.css'
 
-
 const speciesAndOptions = [
     {
         name: 'Arabidopsis thaliana', strains: [
-        {name: 'GL1', recommended: true},
+        {name: 'AGL1', recommended: true},
         {name: 'GV3101 (pMP90)', recommended: true},
         {name: 'C58C1 pCH30'},
-        {name: 'GV2260'}
+        {name: 'GV2260'},
+        {name: 'GALLS'}
     ]
     },
     {
@@ -90,7 +90,8 @@ const speciesAndOptions = [
         name: 'Solanum tuberosum', strains: [
         {name: 'AGL1', recommended: true},
         {name: 'LBA4404,'},
-        {name: 'EHA105', recommended: true}
+        {name: 'EHA105', recommended: true},
+        {name: 'GALLS'}
     ]
     }
 ];
@@ -138,59 +139,25 @@ const Configuration = React.createClass({
                 label: "Rif",
                 value: "Rifampicin"
             }],
-            availableVectors: [
-                {
-                    label: "Rif",
-                    value: "Rifampicin"
-                },
-                {
-                    label: "Kan",
-                    value: "Kanamycin"
-                },
-                {
-                    label: "Spec",
-                    value: "Spectinomycin"
-                },
-                {
-                    label: "Tet",
-                    value: "Tetracycline"
-                },
-                {
-                    label: "Hygr",
-                    value: "Hygromycin"
-                },
-                {
-                    label: "Kan/Hyg",
-                    value: "Kanamycin/Hygromycin"
-                }
-            ]
+
         }
     },
     render: function render() {
-
-
         var strains = [];
-
         if (this.props.species) {
-
             strains = this.props.species.value.strains.map(as => {
-
                 var recommendedAddon = as.recommended ? ' (recommended)' : '';
-
                 return {value: as, label: as.name + recommendedAddon};
-                // return as.name;
             });
 
         }
         var self = this;
-        console.log('config props', self.props);
-
         return (
             <li>
                 <div className="row">
                     <div className="col11">
                         <div className="row">
-                            <div className="col4">
+                            <div className="col6">
                                 <div id="strain-select">
                                     <fieldset>
                                         <label className="center"><span className="italic">Agro.</span> Strain</label>
@@ -212,7 +179,7 @@ const Configuration = React.createClass({
                                     </fieldset>
                                 </div>
                             </div>
-                            <div className="col4">
+                            <div className="col6">
                                 <div id="genotypes-pick">
                                     <fieldset>
                                         <label className="center">Plant Genotype(s)</label>
@@ -227,25 +194,6 @@ const Configuration = React.createClass({
                                             }}
                                             noResultsText="No Genotypes added"
                                             placeholder="Select Genotypes"
-                                        />
-                                    </fieldset>
-                                </div>
-                            </div>
-
-                            <div className="col4">
-                                <div id="vector-select">
-                                    <fieldset>
-                                        <label className="center">Vector Selection</label>
-                                        <Select.Creatable
-                                            name={"config-vectors#" + self.props.constructID + '#' + self.props.uid}
-                                            value={this.state.selectedVectors}
-                                            multi={true}
-                                            options={this.state.availableVectors}
-                                            onChange={function (selectedVectors) {
-                                                self.setState({selectedVectors});
-                                            }}
-                                            noResultsText="No Vector selected"
-                                            placeholder="Select Vector"
                                         />
                                     </fieldset>
                                 </div>
@@ -273,8 +221,61 @@ const Construct = React.createClass({
             strain: '',
             vector: '',
             tdna: '',
-            // constructID: guid(),
-            configurations: [{key: guid()}]
+            selectedTDNA: null,
+            configurations: [{key: guid()}],
+            availableTDNA: [
+                {
+                    value: "Kan",
+                    label: "Kanamycin"
+                },
+                {
+                    value: "Hygr",
+                    label: "Hygromycin"
+                },
+                {
+                    value: "Kan/Hyg",
+                    label: "Kanamycin/Hygromycin"
+                },
+
+                {
+                    value: "PPT",
+                    label: "Phosphinothricin"
+                },
+                {
+                    value: "Fast-Red",
+                    label: "Fast-Red"
+                },
+                {
+                    value: "Phosphite",
+                    label: "Phosphite"
+                },
+                {
+                    value: "CSR",
+                    label: "Chlorsulfuron"
+                }
+            ],
+            availableVectors: [
+                {
+                    value: "Kan",
+                    label: "Kanamycin"
+                },
+                {
+                    value: "Spec",
+                    label: "Spectinomycin"
+                },
+                {
+                    value: "Tet",
+                    label: "Tetracycline"
+                },
+                {
+                    value: "Hygr",
+                    label: "Hygromycin"
+                },
+                {
+                    value: "Kan/Hyg",
+                    label: "Kanamycin/Hygromycin"
+                }
+            ]
         };
     },
     addConfig: function addConfig() {
@@ -332,13 +333,52 @@ const Construct = React.createClass({
                                         </div>
                                     </div>
                                     <div className="col4">
+                                        <div id="vector-select">
+                                            <fieldset>
+                                                <label className="center">Vector Selection</label>
+                                                <Select.Creatable
+                                                    name={"config-vectors#" + self.props.constructID + '#' + self.props.uid}
+                                                    value={this.state.selectedVectors}
+                                                    multi={true}
+                                                    options={this.state.availableVectors}
+                                                    onChange={function (selectedVectors) {
+                                                        if (selectedVectors) {
+                                                            selectedVectors = selectedVectors.map(s=> {
+                                                                return {
+                                                                    label: s.value,
+                                                                    value: s.value
+                                                                };
+                                                            });
+                                                        }
+                                                        self.setState({selectedVectors: selectedVectors});
+                                                    }}
+                                                    noResultsText="No Vector selected"
+                                                    placeholder="Select Vector"
+                                                />
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col12">
                                         <div id="tdna-select">
                                             <fieldset>
                                                 <label className="center">T-DNA Selection</label>
-                                                <input type="text"
-                                                       name={"t-dna#" + self.props.uid}
-                                                       placeholder=""
-                                                       required="true"
+                                                <Select.Creatable
+                                                    name={"config-tdna#" + self.props.constructID + '#' + self.props.uid}
+                                                    value={this.state.selectedTDNA}
+                                                    options={this.state.availableTDNA}
+                                                    onChange={function (selectedTDNA) {
+                                                        if (selectedTDNA) {
+                                                            selectedTDNA = {
+                                                                label: selectedTDNA.value,
+                                                                value: selectedTDNA.value
+                                                            };
+                                                        }
+                                                        self.setState({selectedTDNA});
+                                                    }}
+                                                    noResultsText="No Vector selected"
+                                                    placeholder="Select Vector"
                                                 />
                                             </fieldset>
                                         </div>
@@ -396,7 +436,8 @@ const App = React.createClass({
             }),
             selectedSpecies: null,
             tour: null,
-            tourHidden: false
+            tourHidden: false,
+            costCode: null
         };
     },
     toggleTour: function toggleTour() {
@@ -406,8 +447,6 @@ const App = React.createClass({
         if (toggle && toggle.length) {
             ToggleClass(toggle[0], 'hidden');
         }
-
-        console.log(this.state);
 
         if (this.state.tourHidden) {
             // this.state.tour.show();
@@ -436,7 +475,6 @@ const App = React.createClass({
         });
 
         this.setState({tour});
-
 
         //TODO on step toggle item as active
 
@@ -613,13 +651,18 @@ const App = React.createClass({
                             </div>
                             <div className="col4 center">
                                 <fieldset>
-                                    <label>Group Leader</label>
+                                    <label>Cost Code</label>
 
-                                    {window.adminInfo.boss ?
-                                        <input type="text" readOnly="true" required="true"
-                                               value={window.adminInfo.boss.name}/> :
-                                        <input type="text" required="true"/>}
-
+                                    <Select.Creatable
+                                        name={"config-costcode"}
+                                        value={window.adminInfo.cost[0]}
+                                        options={window.adminInfo.cost}
+                                        onChange={function (costCode) {
+                                            self.setState({costCode});
+                                        }}
+                                        noResultsText="No Cost Center added"
+                                        placeholder="Select Cost Center"
+                                    />
 
                                 </fieldset>
                             </div>
@@ -635,18 +678,20 @@ const App = React.createClass({
                                     <fieldset>
                                         <h2 className="center">Species</h2>
 
-                                        <Select
-                                            name={"config-species"}
-                                            value={this.state.selectedSpecies}
-                                            multi={false} //TODO this is probebly default
-                                            options={this.state.species} //TODO get list from elliott
-                                            onChange={function (selectedSpecies) { //TODO IF NOT col-0 flag it up
-                                                self.setState({selectedSpecies});
+                                        <div className="italic">
+                                            <Select
+                                                name={"config-species"}
+                                                value={this.state.selectedSpecies}
+                                                multi={false} //TODO this is probebly default
+                                                options={this.state.species} //TODO get list from elliott
+                                                onChange={function (selectedSpecies) { //TODO IF NOT col-0 flag it up
+                                                    self.setState({selectedSpecies});
 
-                                            }}
-                                            noResultsText="No Species added"
-                                            placeholder="Select Species"
-                                        />
+                                                }}
+                                                noResultsText="No Species added"
+                                                placeholder="Select Species"
+                                            />
+                                        </div>
 
 
                                         <p>If not shown in the list please <a href="#">contact us</a></p>
@@ -686,7 +731,6 @@ const App = React.createClass({
                         <h2 className="center">Constructs</h2>
 
                         <div id="constructs">
-                            {/*{this.state.constructs}*/}
 
                             {this.state.constructs.map(c=> {
                                 return <Construct uid={c.uid} key={c.uid}
@@ -738,5 +782,6 @@ const App = React.createClass({
         )
     }
 });
+
 
 render.render(React.createElement(App), document.getElementById('app'));

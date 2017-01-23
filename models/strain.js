@@ -7,8 +7,7 @@ const Strain = thinky.createModel('Strain', {
     constructID: type.string().required(),
     createdAt: type.date().default(r.now()),
     strain: type.string().required(),
-    genomes: [type.string()],
-    vectors: [type.string()]
+    genomes: [type.string()]
 });
 
 module.exports = Strain;

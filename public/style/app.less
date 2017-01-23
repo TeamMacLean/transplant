@@ -3,6 +3,10 @@
 //  height: @input-height !important;
 //}
 
+.is-searchable.is-focused:not(.is-open) > .Select-control{
+  border-color: @primary ;
+}
+
 input[type="submit"] {
   &.tall {
     font-size: 1.4rem;
@@ -229,7 +233,7 @@ input[type="submit"] {
 }
 
 .react-select-box:focus, .react-select-box:hover {
-  outline: 0;
+  outline: none;
   //box-shadow: 0 0 4px @primary;
   border: none;
   background-color: inherit;
@@ -327,7 +331,7 @@ input[type="submit"] {
 
 .react-select-box-clear:hover,
 .react-select-box-clear:focus {
-  outline: 0;
+  outline: none;
 }
 
 //.react-select-box-clear:hover:before,
@@ -409,7 +413,7 @@ input[type="submit"] {
 .react-select-box-option:focus,
 .react-select-box-option-focused {
   color: @primary;
-  outline: 0;
+  outline: none;
   background-color: #DDE2E5;
 }
 
@@ -457,6 +461,7 @@ input[type="submit"] {
   font-weight: @weight-bold !important;
   padding-left: 2px !important;
   padding-right: 2px !important;
+  //height: 35px;
 }
 
 .Select--single > .Select-control .Select-value {
@@ -496,12 +501,12 @@ input[type="submit"] {
 ////
 .is-focused {
   > .Select-control, > .Select-menu-outer {
-    border: 1px solid @primary !important;
+    //border: 1px solid @primary !important;
   }
 }
 
 .Select-control {
-  border: 1px solid @grey !important;
+  //border: 1px solid @grey !important;
 }
 
 .Select-control, .Select-input, .Select-placeholder {
@@ -517,6 +522,10 @@ input[type="submit"] {
     box-shadow: none !important;
   }
 
+}
+
+.Select-input {
+  //display: block !important;
 }
 
 *[id^='react-select-'] > div.Select-input > input {

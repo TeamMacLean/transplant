@@ -9,10 +9,10 @@ const Request = require('../models/request');
 const requestLIB = require('request');
 
 function GetNameFromUsername(username) {
-
     var found = config.groupLeaders.filter(gl=> {
         return gl.username == username;
     });
+
     if (found.length > 0) {
         return found[0].name;
     } else {
@@ -44,8 +44,7 @@ function GetAdminInfo(req) {
                         } else {
 
                             // get by username
-
-                            if(!result.SignatoryList){
+                            if (!result.SignatoryList) {
                                 return bad(new Error('No '))
                             }
 
@@ -69,11 +68,6 @@ function GetAdminInfo(req) {
     });
 }
 
-/**
- *
- * @param req
- * @param res
- */
 Requests.new = (req, res)=> {
 
     GetAdminInfo(req).then(adminInfo=> {
@@ -84,14 +78,24 @@ Requests.new = (req, res)=> {
 
             var bossUsername = adminInfo.SupervisorUsername[0] || adminInfo.LineManagerUsername[0];
 
+            var prettyCosts = adminInfo.CostCentres.map(c=> {
+
+                return {
+                    label: c.CostCentre[0],
+                    value: c.CostCentre[0]
+                }
+            });
+
+
             tidyUpAdminObject = {
                 boss: {
                     username: bossUsername,
                     name: GetNameFromUsername(bossUsername)
                 },
-                cost: adminInfo.CostCentres
+                cost: prettyCosts
             };
         }
+
 
         return res.render('requests/new', {adminInfo: tidyUpAdminObject});
     }).catch(err=> {
@@ -108,59 +112,27 @@ function ProcessRequest(body) {
 
         // var constructIDs = [];
         for (var key in body) {
-            //TODO if(body.hasOwnProperty(key))
-            if (key.startsWith('name')) {
-                var UID = key.split('name#')[1];
-                // constructIDs.push(ID);
+            if (body.hasOwnProperty(key)) {
+                if (key.startsWith('name')) {
+                    var UID = key.split('name#')[1];
+                    // constructIDs.push(ID);
 
-                var NAME = body['name#' + UID];
-                var BACKBONE = body['backbone#' + UID];
-                var TDNA = body['t-dna#' + UID];
-
-                if (!NAME) {
-                    return bad(new Error(`No NAME: ${NAME}`))
-                }
-                if (!BACKBONE) {
-                    return bad(new Error(`No BACKBONE: ${BACKBONE}`))
-                }
-                if (!TDNA) {
-                    return bad(new Error(`No TDNA: ${TDNA}`))
-                }
-
-                var con = {
-                    UID: UID,
-                    name: NAME,
-                    backbone: BACKBONE,
-                    tdna: TDNA,
-                    strains: []
-                };
-
-                constructs.push(con);
-
-            }
-        }
-
-        constructs.map(construct=> {
-            for (var key in body) {
-                var prefix = 'config-strain#' + construct.UID + '#';
-                if (key.startsWith(prefix)) {
-                    var UID = key.split(prefix)[1];
+                    var NAME = body['name#' + UID];
+                    var BACKBONE = body['backbone#' + UID];
+                    var TDNA = body['t-dna#' + UID];
+                    var VECTORS = body['config-vectors#' + UID];
 
 
-                    var strainRetrevial = JSON.parse(body['config-strain#' + construct.UID + '#' + UID]).value.name;
-
-                    var GENOMES = body['config-genotypes#' + construct.UID + '#' + UID];
-                    var VECTORS = body['config-vectors#' + construct.UID + '#' + UID];
-
-                    if (!strainRetrevial) {
-                        return bad(new Error('no strains'))
+                    if (!NAME) {
+                        return bad(new Error(`No NAME: ${NAME}`))
                     }
-                    if (!GENOMES) {
-                        return bad(new Error('no genomes'))
+                    if (!BACKBONE) {
+                        return bad(new Error(`No BACKBONE: ${BACKBONE}`))
                     }
-                    if (!Array.isArray(GENOMES)) {
-                        GENOMES = [GENOMES];
+                    if (!TDNA) {
+                        return bad(new Error(`No TDNA: ${TDNA}`))
                     }
+
                     if (!VECTORS) {
                         return bad(new Error('no vectors'))
                     }
@@ -168,19 +140,54 @@ function ProcessRequest(body) {
                         VECTORS = [VECTORS];
                     }
 
-                    var strain = {
+                    var con = {
                         UID: UID,
-                        strain: strainRetrevial,
-                        genomes: GENOMES,
+                        name: NAME,
+                        backbone: BACKBONE,
+                        tdna: TDNA,
+                        strains: [],
                         vectors: VECTORS
                     };
-                    construct.strains.push(strain);
+
+                    constructs.push(con);
+                }
+            }
+        }
+
+        constructs.map(construct=> {
+            for (var key in body) {
+                var prefix = 'config-strain#' + construct.UID + '#';
+                if (body.hasOwnProperty(key)) {
+                    if (key.startsWith(prefix)) {
+                        var UID = key.split(prefix)[1];
+
+
+                        var strainRetrevial = JSON.parse(body['config-strain#' + construct.UID + '#' + UID]).value.name;
+
+                        var GENOMES = body['config-genotypes#' + construct.UID + '#' + UID];
+
+                        if (!strainRetrevial) {
+                            return bad(new Error('no strains'))
+                        }
+                        if (!GENOMES) {
+                            return bad(new Error('no genomes'))
+                        }
+                        if (!Array.isArray(GENOMES)) {
+                            GENOMES = [GENOMES];
+                        }
+
+
+                        var strain = {
+                            UID: UID,
+                            strain: strainRetrevial,
+                            genomes: GENOMES
+                        };
+
+                        construct.strains.push(strain);
+                    }
                 }
             }
         });
-
-
-        //TODO test all is good
 
         var DATE = body['date'];
         var NOTES = body['notes'];

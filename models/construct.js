@@ -8,7 +8,8 @@ const Construct = thinky.createModel('Construct', {
     createdAt: type.date().default(r.now()),
     name: type.string().required(),
     backbone: type.string().required(),
-    tdna: type.string().required()
+    tdna: type.string().required(),
+    vectors: [type.string()]
 });
 
 module.exports = Construct;
