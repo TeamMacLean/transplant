@@ -1,0 +1,11 @@
+<% include ../head.ejs %>
+
+<div class="container">
+    <ul>
+        <% requests.map(function(r){ %>
+        <li><a href="/request/<%- r.id %>"><%- r.id %></a></li>
+        <% }); %>
+    </ul>
+</div>
+
+<% include ../foot.ejs %>

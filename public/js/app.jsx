@@ -182,9 +182,9 @@ const Configuration = React.createClass({
             });
 
         }
-
-
         var self = this;
+        console.log('config props', self.props);
+
         return (
             <li>
                 <div className="row">
@@ -215,10 +215,10 @@ const Configuration = React.createClass({
                             <div className="col4">
                                 <div id="genotypes-pick">
                                     <fieldset>
-                                        <label className="center">Genotype(s)</label>
+                                        <label className="center">Plant Genotype(s)</label>
 
                                         <Select
-                                            name={"config-genomes#" + self.props.constructID + '#' + self.props.uid}
+                                            name={"config-genotypes#" + self.props.constructID + '#' + self.props.uid}
                                             value={this.state.genotypes}
                                             multi={true}
                                             options={this.props.genotypes}
@@ -258,7 +258,6 @@ const Configuration = React.createClass({
                         </div>
                     </div>
                 </div>
-                <hr/>
             </li>
         )
     }
@@ -310,7 +309,7 @@ const Construct = React.createClass({
                                     <div className="col4">
                                         <div id="name-select">
                                             <fieldset>
-                                                <label className="center">Name</label>
+                                                <label className="center">Construct Name</label>
                                                 <input type="text"
                                                        name={"name#" + self.props.uid}
                                                        placeholder=""
@@ -350,7 +349,7 @@ const Construct = React.createClass({
 
                                 <div className="row">
                                     <div className="col12">
-                                        <h3 className="center">Strains</h3>
+                                        {/*<h3 className="center"></h3>*/}
                                         <ul>
                                             {this.state.configurations.map(c=> {
                                                 return <Configuration key={c.key} constructID={self.props.uid}
@@ -362,9 +361,8 @@ const Construct = React.createClass({
                                         </ul>
                                         <div className="row">
                                             <div className="col12">
-                                                <div id="add-strain-button" className="wide button tall has-icon"
-                                                     onClick={this.addConfig}>ADD
-                                                    STRAIN
+                                                <div id="add-strain-button" className="button center has-icon"
+                                                     onClick={this.addConfig}>ADD ANOTHER STRAIN
                                                 </div>
                                             </div>
                                         </div>
@@ -638,7 +636,7 @@ const App = React.createClass({
                                         <h2 className="center">Species</h2>
 
                                         <Select
-                                            name={"config-genomes#" + self.props.uid}
+                                            name={"config-species"}
                                             value={this.state.selectedSpecies}
                                             multi={false} //TODO this is probebly default
                                             options={this.state.species} //TODO get list from elliott
@@ -662,7 +660,7 @@ const App = React.createClass({
 
 
                                         <Select.Creatable
-                                            name={"config-genotypes#" + self.props.constructID + '#' + self.props.uid}
+                                            name={"genotypes"}
                                             value={this.state.genotypes}
                                             className="genotype-select"
                                             multi={true}

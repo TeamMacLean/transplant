@@ -6,6 +6,8 @@ const config = require('../config.json');
 
 const Request = require('../models/request');
 
+const requestLIB = require('request');
+
 function GetNameFromUsername(username) {
 
     var found = config.groupLeaders.filter(gl=> {
@@ -21,33 +23,49 @@ function GetNameFromUsername(username) {
 function GetAdminInfo(req) {
 
     return new Promise((good, bad)=> {
+        var auth = "Basic " + new Buffer(config.ldap.bindDn + ":" + config.ldap.bindCredentials).toString("base64");
 
-        fs.readFile('./siglist_22_12_16.xml', 'utf8', function (err, contents) {
-            if (err) {
-                return bad(err);
-            } else {
-                var parseString = require('xml2js').parseString;
-                parseString(contents, function (err, result) {
-                    if (err) {
-                        return bad(err);
-                    } else {
-                        //get by username
-                        var filterd = result.Signatorylist.Signatory.filter(s=> {
-                            return s.userName == req.user.username;
-                        });
-                        if (filterd.length < 1) {
-                            return good(null);
-                            // return bad('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.')
-                            // return renderError('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.', res);
+        requestLIB({
+                url: "http://intranet/infoserv/cgi-bin/directory/signatoriesList.asp?username=" + req.user.username,
+                headers: {
+                    "Authorization": auth
+                }
+            },
+            function (error, response, body) {
+                // Do more stuff with 'body' here
+
+                if (error) {
+                    return bad(error);
+                } else {
+                    var parseString = require('xml2js').parseString;
+                    parseString(body, function (err, result) {
+                        if (err) {
+                            return bad(err);
+                        } else {
+
+                            // get by username
+
+                            if(!result.SignatoryList){
+                                return bad(new Error('No '))
+                            }
+
+                            var filterd = result.SignatoryList.Signatory.filter(s=> {
+                                return s.userName == req.user.username;
+                            });
+                            if (filterd.length < 1) {
+                                return good(null);
+                                // return bad('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.')
+                                // return renderError('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.', res);
+                            }
+                            if (filterd.length > 1) {
+                                console.error('found user ' + req.user.username + ' more than once in xml');
+                            }
+
+                            return good(filterd[0]);
                         }
-                        if (filterd.length > 1) {
-                            console.error('found user ' + req.user.username + ' more than once in xml');
-                        }
-                        return good(filterd[0]);
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
     });
 }
 
@@ -55,9 +73,8 @@ function GetAdminInfo(req) {
  *
  * @param req
  * @param res
- * @param next
  */
-Requests.new = (req, res, next)=> {
+Requests.new = (req, res)=> {
 
     GetAdminInfo(req).then(adminInfo=> {
 
@@ -73,11 +90,8 @@ Requests.new = (req, res, next)=> {
                     name: GetNameFromUsername(bossUsername)
                 },
                 cost: adminInfo.CostCentres
-
             };
         }
-
-        // console.log('tidy up', tidyUpAdminObject);
 
         return res.render('requests/new', {adminInfo: tidyUpAdminObject});
     }).catch(err=> {
@@ -86,95 +100,169 @@ Requests.new = (req, res, next)=> {
 
 };
 
+function ProcessRequest(body) {
+
+    return new Promise((good, bad)=> {
+
+        var constructs = [];
+
+        // var constructIDs = [];
+        for (var key in body) {
+            //TODO if(body.hasOwnProperty(key))
+            if (key.startsWith('name')) {
+                var UID = key.split('name#')[1];
+                // constructIDs.push(ID);
+
+                var NAME = body['name#' + UID];
+                var BACKBONE = body['backbone#' + UID];
+                var TDNA = body['t-dna#' + UID];
+
+                if (!NAME) {
+                    return bad(new Error(`No NAME: ${NAME}`))
+                }
+                if (!BACKBONE) {
+                    return bad(new Error(`No BACKBONE: ${BACKBONE}`))
+                }
+                if (!TDNA) {
+                    return bad(new Error(`No TDNA: ${TDNA}`))
+                }
+
+                var con = {
+                    UID: UID,
+                    name: NAME,
+                    backbone: BACKBONE,
+                    tdna: TDNA,
+                    strains: []
+                };
+
+                constructs.push(con);
+
+            }
+        }
+
+        constructs.map(construct=> {
+            for (var key in body) {
+                var prefix = 'config-strain#' + construct.UID + '#';
+                if (key.startsWith(prefix)) {
+                    var UID = key.split(prefix)[1];
+
+
+                    var strainRetrevial = JSON.parse(body['config-strain#' + construct.UID + '#' + UID]).value.name;
+
+                    var GENOMES = body['config-genotypes#' + construct.UID + '#' + UID];
+                    var VECTORS = body['config-vectors#' + construct.UID + '#' + UID];
+
+                    if (!strainRetrevial) {
+                        return bad(new Error('no strains'))
+                    }
+                    if (!GENOMES) {
+                        return bad(new Error('no genomes'))
+                    }
+                    if (!Array.isArray(GENOMES)) {
+                        GENOMES = [GENOMES];
+                    }
+                    if (!VECTORS) {
+                        return bad(new Error('no vectors'))
+                    }
+                    if (!Array.isArray(VECTORS)) {
+                        VECTORS = [VECTORS];
+                    }
+
+                    var strain = {
+                        UID: UID,
+                        strain: strainRetrevial,
+                        genomes: GENOMES,
+                        vectors: VECTORS
+                    };
+                    construct.strains.push(strain);
+                }
+            }
+        });
+
+
+        //TODO test all is good
+
+        var DATE = body['date'];
+        var NOTES = body['notes'];
+
+        if (!DATE) {
+            return bad(new Error('no DATE'))
+        }
+        if (!NOTES) {
+            return bad(new Error('no NOTES'))
+        }
+        var request = {
+            date: DATE,
+            notes: NOTES,
+            constructs: constructs
+        };
+
+        return good(request);
+    })
+}
+
 /**
  *
  * @param req
  * @param res
- * @param next
  */
-Requests.save = (req, res, next)=> {
-    //send email to group leader to sign off request
-
-    // console.log();
-    // console.log(req.body);
-    // console.log();
-
+Requests.save = (req, res)=> {
 
     var body = req.body;
 
-    console.log(body);
+    var username = req.user.username;
 
-    // var request = {
-    //     date: body['date'],
-    //     // genotypes: [],//TODO
-    //     // constructs: [],
-    //     notes: ""
-    // };
+    ProcessRequest(body)
+        .then(request => {
+            request.username = username;
+            var newRequest = new Request(request);
+            newRequest.saveAll({constructs: {strains: true}})
+                .then(savedRequest=> {
+                    console.log('saved', savedRequest);
 
-    //TODO get all construct ids
-    var constructIDs = [];
-    for (var key in body) {
-        if (key.startsWith('name')) {
-            constructIDs.push(key.split('name#')[1]);
-        }
-    }
+                    //TODO send email to group leader to sign off request
+                    return res.send('Request Sent Successfully');
+                })
+                .catch(err=> {
+                    //TODO deleteAll on request
+                    console.error(err);
+                    return res.send(`Request Failed: ${err}`);
+                });
+        })
+        .catch(err=> {
+            console.error(err);
+            return res.send(`error: ${err}`);
+        });
 
-    console.log(constructIDs);
+};
 
-    //
-    // req.body.filter(p=> {
-    //     return p.start
-    // })
-    //
-    new Request({
-        date: req.body['date'],
-        notes: req.body['notes']
-    })
-        .save()
-        .then(saved=> {
-            constructIDs.map(constructID=> {
-                //TODO create construct document
+Requests.my = (req, res)=> {
 
+    var username = req.user.username;
 
-                //TODO get config ids in construct
-                var configIDs = [];
-                for (var key in body) {
-
-
-                    var prefix = 'config-strain#' + constructID + '#';
-
-                    console.log('prefix', prefix);
-
-                    if (key.startsWith(prefix)) {
-
-                        console.log('key', key);
-
-                        configIDs.push(key.split(prefix)[1]);
-                    }
-                }
-
-                console.log('this construct has', configIDs.length, 'configs');
-
-
-            })
+    Request.filter({username: username})
+        .run()
+        .then(requests=> {
+            return res.render('requests/my', {requests});
         })
         .catch(err=> {
             return renderError(err, res);
-        });
+        })
 
+};
 
-    // var todo = {
-    //
-    //     name: req.body['backbone'],
-    //     tDNA: req.body['t-dna'],
-    // };
+Requests.show = (req, res)=> {
 
+    var id = req.params.id;
 
-    //TODO should I seporate construct + config into their own models?
-    //TODO save request
-
-
-    next();
+    Request.get(id)
+        .getJoin({constructs: {strains: true}})
+        .then(request=> {
+            return res.render('requests/show', {request});
+        })
+        .catch(err=> {
+            return renderError(err);
+        })
 
 };
 

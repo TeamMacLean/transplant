@@ -186,8 +186,9 @@
 	                // return as.name;
 	            });
 	        }
-
 	        var self = this;
+	        console.log('config props', self.props);
+
 	        return _react2.default.createElement(
 	            'li',
 	            null,
@@ -249,10 +250,10 @@
 	                                    _react2.default.createElement(
 	                                        'label',
 	                                        { className: 'center' },
-	                                        'Genotype(s)'
+	                                        'Plant Genotype(s)'
 	                                    ),
 	                                    _react2.default.createElement(_reactSelect2.default, {
-	                                        name: "config-genomes#" + self.props.constructID + '#' + self.props.uid,
+	                                        name: "config-genotypes#" + self.props.constructID + '#' + self.props.uid,
 	                                        value: this.state.genotypes,
 	                                        multi: true,
 	                                        options: this.props.genotypes,
@@ -304,8 +305,7 @@
 	                        _react2.default.createElement('i', { className: 'icon-close' })
 	                    )
 	                )
-	            ),
-	            _react2.default.createElement('hr', null)
+	            )
 	        );
 	    }
 	});
@@ -377,7 +377,7 @@
 	                                            _react2.default.createElement(
 	                                                'label',
 	                                                { className: 'center' },
-	                                                'Name'
+	                                                'Construct Name'
 	                                            ),
 	                                            _react2.default.createElement('input', { type: 'text',
 	                                                name: "name#" + self.props.uid,
@@ -440,11 +440,6 @@
 	                                    'div',
 	                                    { className: 'col12' },
 	                                    _react2.default.createElement(
-	                                        'h3',
-	                                        { className: 'center' },
-	                                        'Strains'
-	                                    ),
-	                                    _react2.default.createElement(
 	                                        'ul',
 	                                        null,
 	                                        this.state.configurations.map(function (c) {
@@ -463,9 +458,9 @@
 	                                            { className: 'col12' },
 	                                            _react2.default.createElement(
 	                                                'div',
-	                                                { id: 'add-strain-button', className: 'wide button tall has-icon',
+	                                                { id: 'add-strain-button', className: 'button center has-icon',
 	                                                    onClick: this.addConfig },
-	                                                'ADD STRAIN'
+	                                                'ADD ANOTHER STRAIN'
 	                                            )
 	                                        )
 	                                    )
@@ -775,7 +770,7 @@
 	                                        'Species'
 	                                    ),
 	                                    _react2.default.createElement(_reactSelect2.default, {
-	                                        name: "config-genomes#" + self.props.uid,
+	                                        name: "config-species",
 	                                        value: this.state.selectedSpecies,
 	                                        multi: false //TODO this is probebly default
 	                                        , options: this.state.species //TODO get list from elliott
@@ -814,7 +809,7 @@
 	                                        'Genotype(s)'
 	                                    ),
 	                                    _react2.default.createElement(_reactSelect2.default.Creatable, {
-	                                        name: "config-genotypes#" + self.props.constructID + '#' + self.props.uid,
+	                                        name: "genotypes",
 	                                        value: this.state.genotypes,
 	                                        className: 'genotype-select',
 	                                        multi: true,

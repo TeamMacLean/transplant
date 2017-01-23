@@ -3,6 +3,7 @@ const router = express.Router();
 const Util = require('./lib/util');
 const Auth = require('./controllers/auth');
 const Requests = require('./controllers/requests');
+const Admin = require('./controllers/admin');
 
 router.route('/')
     .get((req, res) => res.render('index'));
@@ -21,6 +22,19 @@ router.route('/new')
     .all(isAuthenticated)
     .get(Requests.new)
     .post(Requests.save);
+
+router.route('/requests')
+    .all(isAuthenticated)
+    .get(Requests.my);
+
+router.route('/request/:id')
+    .all(isAuthenticated)
+    .get(Requests.show);
+
+router.route('/timeline')
+    .all(isAuthenticated)
+    .all(isAdmin)
+    .get(Admin.timeline);
 
 //LAST!
 router.route('*')

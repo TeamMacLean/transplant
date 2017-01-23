@@ -18,6 +18,16 @@ nav {
   .pillow;
 
   .brand {
+    //a {
+      color: #FFF;
+    //}
+    .name {
+      float: left;
+      @media (max-width: @breakpoint) {
+        display: none;
+      }
+    }
+
     font-weight: @weight-light;
     float: left;
     font-size: 1.5rem;
@@ -27,9 +37,7 @@ nav {
     &:hover {
       background-color: @primary-dark;
     }
-    a {
-      color: #FFF;
-    }
+
     img {
       height: @nav-height - 16;
       width: auto;
@@ -79,7 +87,7 @@ nav {
         .transition-all;
         &:hover {
           background-color: @primary;
-          a{
+          a {
             color: #FFFFFF;
           }
         }
