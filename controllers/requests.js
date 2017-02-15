@@ -9,7 +9,7 @@ const Request = require('../models/request');
 const requestLIB = require('request');
 
 function GetNameFromUsername(username) {
-    var found = config.groupLeaders.filter(gl=> {
+    const found = config.groupLeaders.filter(gl => {
         return gl.username == username;
     });
 
@@ -22,8 +22,8 @@ function GetNameFromUsername(username) {
 
 function GetAdminInfo(req) {
 
-    return new Promise((good, bad)=> {
-        var auth = "Basic " + new Buffer(config.ldap.bindDn + ":" + config.ldap.bindCredentials).toString("base64");
+    return new Promise((good, bad) => {
+        const auth = "Basic " + new Buffer(config.ldap.bindDn + ":" + config.ldap.bindCredentials).toString("base64");
 
         requestLIB({
                 url: "http://intranet/infoserv/cgi-bin/directory/signatoriesList.asp?username=" + req.user.username,
@@ -37,18 +37,22 @@ function GetAdminInfo(req) {
                 if (error) {
                     return bad(error);
                 } else {
-                    var parseString = require('xml2js').parseString;
+                    const parseString = require('xml2js').parseString;
                     parseString(body, function (err, result) {
                         if (err) {
                             return bad(err);
                         } else {
+
+                            if (!result) {
+                                return bad(new Error('No Result'))
+                            }
 
                             // get by username
                             if (!result.SignatoryList) {
                                 return bad(new Error('No '))
                             }
 
-                            var filterd = result.SignatoryList.Signatory.filter(s=> {
+                            const filterd = result.SignatoryList.Signatory.filter(s => {
                                 return s.userName == req.user.username;
                             });
                             if (filterd.length < 1) {
@@ -68,17 +72,17 @@ function GetAdminInfo(req) {
     });
 }
 
-Requests.new = (req, res)=> {
+Requests.new = (req, res) => {
 
-    GetAdminInfo(req).then(adminInfo=> {
+    GetAdminInfo(req).then(adminInfo => {
 
-        var tidyUpAdminObject = {};
+        let tidyUpAdminObject = {};
 
         if (adminInfo) {
 
-            var bossUsername = adminInfo.SupervisorUsername[0] || adminInfo.LineManagerUsername[0];
+            const bossUsername = adminInfo.SupervisorUsername[0] || adminInfo.LineManagerUsername[0];
 
-            var prettyCosts = adminInfo.CostCentres.map(c=> {
+            const prettyCosts = adminInfo.CostCentres.map(c => {
 
                 return {
                     label: c.CostCentre[0],
@@ -98,7 +102,7 @@ Requests.new = (req, res)=> {
 
 
         return res.render('requests/new', {adminInfo: tidyUpAdminObject});
-    }).catch(err=> {
+    }).catch(err => {
         return renderError(err, res);
     })
 
@@ -106,22 +110,21 @@ Requests.new = (req, res)=> {
 
 function ProcessRequest(body) {
 
-    return new Promise((good, bad)=> {
+    return new Promise((good, bad) => {
 
-        var constructs = [];
+        const constructs = [];
 
         // var constructIDs = [];
-        for (var key in body) {
-            if (body.hasOwnProperty(key)) {
+        for (let key in body) {
+            if (Object.prototype.hasOwnProperty.call(body, key)) {
                 if (key.startsWith('name')) {
-                    var UID = key.split('name#')[1];
+                    const UID = key.split('name#')[1];
                     // constructIDs.push(ID);
 
-                    var NAME = body['name#' + UID];
-                    var BACKBONE = body['backbone#' + UID];
-                    var TDNA = body['t-dna#' + UID];
-                    var VECTORS = body['config-vectors#' + UID];
-
+                    let NAME = body['name#' + UID];
+                    let BACKBONE = body['backbone#' + UID];
+                    let TDNA = body['tdna#' + UID];
+                    let VECTORS = body['vectors#' + UID];
 
                     if (!NAME) {
                         return bad(new Error(`No NAME: ${NAME}`))
@@ -140,7 +143,7 @@ function ProcessRequest(body) {
                         VECTORS = [VECTORS];
                     }
 
-                    var con = {
+                    const con = {
                         UID: UID,
                         name: NAME,
                         backbone: BACKBONE,
@@ -154,17 +157,17 @@ function ProcessRequest(body) {
             }
         }
 
-        constructs.map(construct=> {
-            for (var key in body) {
-                var prefix = 'config-strain#' + construct.UID + '#';
-                if (body.hasOwnProperty(key)) {
+        constructs.map(construct => {
+            for (let key in body) {
+                const prefix = 'config-strain#' + construct.UID + '#';
+                if (Object.prototype.hasOwnProperty.call(body, key)) {
                     if (key.startsWith(prefix)) {
-                        var UID = key.split(prefix)[1];
+                        const UID = key.split(prefix)[1];
 
 
-                        var strainRetrevial = JSON.parse(body['config-strain#' + construct.UID + '#' + UID]).value.name;
+                        let strainRetrevial = JSON.parse(body['config-strain#' + construct.UID + '#' + UID]).value.name;
 
-                        var GENOMES = body['config-genotypes#' + construct.UID + '#' + UID];
+                        let GENOMES = body['config-genotypes#' + construct.UID + '#' + UID];
 
                         if (!strainRetrevial) {
                             return bad(new Error('no strains'))
@@ -177,7 +180,7 @@ function ProcessRequest(body) {
                         }
 
 
-                        var strain = {
+                        const strain = {
                             UID: UID,
                             strain: strainRetrevial,
                             genomes: GENOMES
@@ -189,8 +192,8 @@ function ProcessRequest(body) {
             }
         });
 
-        var DATE = body['date'];
-        var NOTES = body['notes'];
+        let DATE = body['date'];
+        let NOTES = body['notes'];
 
         if (!DATE) {
             return bad(new Error('no DATE'))
@@ -198,7 +201,7 @@ function ProcessRequest(body) {
         if (!NOTES) {
             return bad(new Error('no NOTES'))
         }
-        var request = {
+        const request = {
             date: DATE,
             notes: NOTES,
             constructs: constructs
@@ -213,64 +216,55 @@ function ProcessRequest(body) {
  * @param req
  * @param res
  */
-Requests.save = (req, res)=> {
+Requests.save = (req, res) => {
 
-    var body = req.body;
-
-    var username = req.user.username;
+    const body = req.body;
+    const username = req.user.username;
 
     ProcessRequest(body)
         .then(request => {
             request.username = username;
-            var newRequest = new Request(request);
+            const newRequest = new Request(request);
             newRequest.saveAll({constructs: {strains: true}})
-                .then(savedRequest=> {
+                .then(savedRequest => {
                     console.log('saved', savedRequest);
-
                     //TODO send email to group leader to sign off request
-                    return res.send('Request Sent Successfully');
+                    return res.redirect(`/request/${savedRequest.id}`);
                 })
-                .catch(err=> {
+                .catch(err => {
                     //TODO deleteAll on request
                     console.error(err);
                     return res.send(`Request Failed: ${err}`);
                 });
         })
-        .catch(err=> {
+        .catch(err => {
             console.error(err);
             return res.send(`error: ${err}`);
         });
-
 };
 
-Requests.my = (req, res)=> {
-
-    var username = req.user.username;
-
+Requests.my = (req, res) => {
+    const username = req.user.username;
     Request.filter({username: username})
         .run()
-        .then(requests=> {
+        .then(requests => {
             return res.render('requests/my', {requests});
         })
-        .catch(err=> {
+        .catch(err => {
             return renderError(err, res);
         })
-
 };
 
-Requests.show = (req, res)=> {
-
-    var id = req.params.id;
-
+Requests.show = (req, res) => {
+    const id = req.params.id;
     Request.get(id)
         .getJoin({constructs: {strains: true}})
-        .then(request=> {
+        .then(request => {
             return res.render('requests/show', {request});
         })
-        .catch(err=> {
+        .catch(err => {
             return renderError(err);
         })
-
 };
 
 module.exports = Requests;

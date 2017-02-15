@@ -337,7 +337,7 @@ const Construct = React.createClass({
                                             <fieldset>
                                                 <label className="center">Vector Selection</label>
                                                 <Select.Creatable
-                                                    name={"config-vectors#" + self.props.constructID + '#' + self.props.uid}
+                                                    name={"vectors#" + self.props.uid}
                                                     value={this.state.selectedVectors}
                                                     multi={true}
                                                     options={this.state.availableVectors}
@@ -365,7 +365,7 @@ const Construct = React.createClass({
                                             <fieldset>
                                                 <label className="center">T-DNA Selection</label>
                                                 <Select.Creatable
-                                                    name={"config-tdna#" + self.props.constructID + '#' + self.props.uid}
+                                                    name={"tdna#" + self.props.uid}
                                                     value={this.state.selectedTDNA}
                                                     options={this.state.availableTDNA}
                                                     onChange={function (selectedTDNA) {

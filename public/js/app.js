@@ -408,7 +408,7 @@
 	                                                'Vector Selection'
 	                                            ),
 	                                            _react2.default.createElement(_reactSelect2.default.Creatable, {
-	                                                name: "config-vectors#" + self.props.constructID + '#' + self.props.uid,
+	                                                name: "vectors#" + self.props.uid,
 	                                                value: this.state.selectedVectors,
 	                                                multi: true,
 	                                                options: this.state.availableVectors,
@@ -448,7 +448,7 @@
 	                                                'T-DNA Selection'
 	                                            ),
 	                                            _react2.default.createElement(_reactSelect2.default.Creatable, {
-	                                                name: "config-tdna#" + self.props.constructID + '#' + self.props.uid,
+	                                                name: "tdna#" + self.props.uid,
 	                                                value: this.state.selectedTDNA,
 	                                                options: this.state.availableTDNA,
 	                                                onChange: function onChange(selectedTDNA) {

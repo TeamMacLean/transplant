@@ -15,6 +15,7 @@
             <p>Name: <%- construct.name %></p>
             <p>Backbone: <%- construct.backbone %></p>
             <p>T-DNA: <%- construct.tdna %></p>
+            <p>Vectors: <%- construct.vectors %></p>
             <ul>
                 <% construct.strains.map(function(strain){ %>
                 <h3>Strain</h3>
@@ -22,14 +23,12 @@
                     <p>ID: <%- strain.id %></p>
                     <p>Strain: <%- strain.strain %></p>
                     <p>Genomes: <%- strain.genomes %></p>
-                    <p>Vectors: <%- strain.vectors %></p>
                 </li>
                 <% }); %>
             </ul>
         </li>
         <% }); %>
     </ul>
-
 </div>
 
 <% include ../foot.ejs %>
