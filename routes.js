@@ -4,6 +4,7 @@ const Util = require('./lib/util');
 const Auth = require('./controllers/auth');
 const Requests = require('./controllers/requests');
 const Admin = require('./controllers/admin');
+const API = require('./controllers/api');
 
 router.route('/')
     .get((req, res) => res.render('index'));
@@ -35,6 +36,20 @@ router.route('/timeline')
     .all(isAuthenticated)
     .all(isAdmin)
     .get(Admin.timeline);
+
+
+router.route('/api/events/add')
+    .post(API.add);
+
+router.route('/api/events/move')
+    .post(API.move);
+
+router.route('/api/events/update')
+    .post(API.update);
+
+router.route('/api/events/delete')
+    .post(API.delete);
+
 
 //LAST!
 router.route('*')

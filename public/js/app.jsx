@@ -104,8 +104,8 @@ function ToggleClass(el, className) {
     if (el.classList) {
         el.classList.toggle(className);
     } else {
-        var classes = el.className.split(' ');
-        var existingIndex = classes.indexOf(className);
+        const classes = el.className.split(' ');
+        const existingIndex = classes.indexOf(className);
 
         if (existingIndex >= 0)
             classes.splice(existingIndex, 1);
@@ -143,15 +143,15 @@ const Configuration = React.createClass({
         }
     },
     render: function render() {
-        var strains = [];
+        let strains = [];
         if (this.props.species) {
             strains = this.props.species.value.strains.map(as => {
-                var recommendedAddon = as.recommended ? ' (recommended)' : '';
+                const recommendedAddon = as.recommended ? ' (recommended)' : '';
                 return {value: as, label: as.name + recommendedAddon};
             });
 
         }
-        var self = this;
+        const self = this;
         return (
             <li>
                 <div className="row">
@@ -299,7 +299,7 @@ const Construct = React.createClass({
     componentDidMount: function () {
     },
     render: function render() {
-        var self = this;
+        const self = this;
         return (
             <div className="draggable">
                 <div className="construct">
@@ -343,7 +343,7 @@ const Construct = React.createClass({
                                                     options={this.state.availableVectors}
                                                     onChange={function (selectedVectors) {
                                                         if (selectedVectors) {
-                                                            selectedVectors = selectedVectors.map(s=> {
+                                                            selectedVectors = selectedVectors.map(s => {
                                                                 return {
                                                                     label: s.value,
                                                                     value: s.value
@@ -391,7 +391,7 @@ const Construct = React.createClass({
                                     <div className="col12">
                                         {/*<h3 className="center"></h3>*/}
                                         <ul>
-                                            {this.state.configurations.map(c=> {
+                                            {this.state.configurations.map(c => {
                                                 return <Configuration key={c.key} constructID={self.props.uid}
                                                                       genotypes={this.props.genotypes}
                                                                       species={this.props.species}
@@ -431,7 +431,7 @@ const App = React.createClass({
             constructs: [],
             options: [],
             genotypes: [],
-            species: speciesAndOptions.map(sao=> {
+            species: speciesAndOptions.map(sao => {
                 return {value: sao, label: sao.name};
             }),
             selectedSpecies: null,
@@ -442,7 +442,7 @@ const App = React.createClass({
     },
     toggleTour: function toggleTour() {
         //todo show toggle-tour
-        var toggle = document.querySelectorAll('#toggle-tutorial');
+        const toggle = document.querySelectorAll('#toggle-tutorial');
 
         if (toggle && toggle.length) {
             ToggleClass(toggle[0], 'hidden');
@@ -462,7 +462,7 @@ const App = React.createClass({
     },
     componentDidMount: function componentDidMount() {
 
-        var self = this;
+        const self = this;
 
         this.addConstruct();
 
@@ -489,7 +489,7 @@ const App = React.createClass({
         //     ToggleClass(event.step.getAttachTo().element, 'tour-active')
         // });
 
-        var buttons = [
+        const buttons = [
             {
                 text: 'Exit',
                 classes: 'shepherd-button-secondary',
@@ -732,7 +732,7 @@ const App = React.createClass({
 
                         <div id="constructs">
 
-                            {this.state.constructs.map(c=> {
+                            {this.state.constructs.map(c => {
                                 return <Construct uid={c.uid} key={c.uid}
                                                   species={this.state.selectedSpecies}
                                                   removeConstruct={this.removeConstruct}
@@ -770,7 +770,7 @@ const App = React.createClass({
                     <section>
                         <div id="submit">
                             <fieldset>
-                                <input type="submit" className="wide success tall" value="Submit"/>
+                                <input type="submit" className="button wide success tall" value="Submit"/>
                             </fieldset>
                         </div>
                     </section>
@@ -782,6 +782,5 @@ const App = React.createClass({
         )
     }
 });
-
 
 render.render(React.createElement(App), document.getElementById('app'));

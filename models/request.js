@@ -7,23 +7,14 @@ const Request = thinky.createModel('Request', {
     createdAt: type.date().default(r.now()),
     date: type.string().required(),
     approved: type.boolean().default(false),
-    username: type.string().required()
+    username: type.string().required(),
+    species: type.string().required(),
+    genotypes: type.array().schema(type.string()).required()
 });
-
-//TODO will backbones, strains, selections, and tdna be shared?
 
 module.exports = Request;
 
 const Construct = require('./construct');
 Request.hasMany(Construct, "constructs", "id", "requestID");
-
-
-
-//arab:
-// received
-// seeds sown
-// plants moved to long day
-// dipped (for other: transformed)
-// bagged
-// seeds harvested
-// seeds returned/complete (for other: complete)
+const Event = require('./event');
+Request.hasMany(Event, 'events', 'id', 'requestID');

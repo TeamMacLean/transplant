@@ -1,6 +1,5 @@
 const renderError = require('../lib/renderError');
 const Request = require('../models/request');
-const moment = require('moment');
 
 let Admin = {};
 
@@ -8,6 +7,7 @@ let Admin = {};
 Admin.timeline = (req, res) => {
 
     Request
+        .getJoin({events: true})
         .run()
         .then(requests => {
 
@@ -16,28 +16,19 @@ Admin.timeline = (req, res) => {
 
             requests.map(request => {
 
-                const start = moment(request.createdAt);
+                request.events.map(event => {
+
+                    items.push({
+                        group: request.id,
+                        start: event.date,
+                        type: 'box',
+                        content: event.text,
+                        eventID: event.id
+                    })
+
+                });
 
                 groups.push({id: request.id, items: items});
-
-                items.push({
-                    group: request.id,
-                    start: start.format(),
-                    type: 'box',
-                    content: 'Plant'
-                });
-                items.push({
-                    group: request.id,
-                    start: start.add(6, 'd').format(),
-                    type: 'box',
-                    content: 'Dip'
-                });
-                items.push({
-                    group: request.id,
-                    start: start.add(11, 'd').format(),
-                    type: 'box',
-                    content: 'Harvest'
-                })
 
             });
             return res.render('admin/timeline', {groups, items});

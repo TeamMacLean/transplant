@@ -70,13 +70,13 @@
 
 	var _reactSelect2 = _interopRequireDefault(_reactSelect);
 
-	__webpack_require__(315);
+	__webpack_require__(316);
 
-	var _tetherShepherd = __webpack_require__(319);
+	var _tetherShepherd = __webpack_require__(320);
 
 	var _tetherShepherd2 = _interopRequireDefault(_tetherShepherd);
 
-	__webpack_require__(321);
+	__webpack_require__(322);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -943,7 +943,7 @@
 	                        _react2.default.createElement(
 	                            'fieldset',
 	                            null,
-	                            _react2.default.createElement('input', { type: 'submit', className: 'wide success tall', value: 'Submit' })
+	                            _react2.default.createElement('input', { type: 'submit', className: 'button wide success tall', value: 'Submit' })
 	                        )
 	                    )
 	                )
@@ -39040,23 +39040,27 @@
 
 	var _utilsDefaultMenuRenderer2 = _interopRequireDefault(_utilsDefaultMenuRenderer);
 
-	var _Async = __webpack_require__(310);
+	var _utilsDefaultClearRenderer = __webpack_require__(310);
+
+	var _utilsDefaultClearRenderer2 = _interopRequireDefault(_utilsDefaultClearRenderer);
+
+	var _Async = __webpack_require__(311);
 
 	var _Async2 = _interopRequireDefault(_Async);
 
-	var _AsyncCreatable = __webpack_require__(311);
+	var _AsyncCreatable = __webpack_require__(312);
 
 	var _AsyncCreatable2 = _interopRequireDefault(_AsyncCreatable);
 
-	var _Creatable = __webpack_require__(312);
+	var _Creatable = __webpack_require__(313);
 
 	var _Creatable2 = _interopRequireDefault(_Creatable);
 
-	var _Option = __webpack_require__(313);
+	var _Option = __webpack_require__(314);
 
 	var _Option2 = _interopRequireDefault(_Option);
 
-	var _Value = __webpack_require__(314);
+	var _Value = __webpack_require__(315);
 
 	var _Value2 = _interopRequireDefault(_Value);
 
@@ -39093,8 +39097,10 @@
 			backspaceToRemoveMessage: _react2['default'].PropTypes.string, // Message to use for screenreaders to press backspace to remove the current item - {label} is replaced with the item label
 			className: _react2['default'].PropTypes.string, // className for the outer element
 			clearAllText: stringOrNode, // title for the "clear" control when multi: true
+			clearRenderer: _react2['default'].PropTypes.func, // create clearable x element
 			clearValueText: stringOrNode, // title for the "clear" control
 			clearable: _react2['default'].PropTypes.bool, // should it be possible to reset value
+			deleteRemoves: _react2['default'].PropTypes.bool, // whether backspace removes an item if there is no text input
 			delimiter: _react2['default'].PropTypes.string, // delimiter to use to join multiple values for the hidden field value
 			disabled: _react2['default'].PropTypes.bool, // whether the Select is disabled or not
 			escapeClearsValue: _react2['default'].PropTypes.bool, // whether escape clears the value when the menu is closed
@@ -39162,7 +39168,9 @@
 				backspaceToRemoveMessage: 'Press backspace to remove {label}',
 				clearable: true,
 				clearAllText: 'Clear all',
+				clearRenderer: _utilsDefaultClearRenderer2['default'],
 				clearValueText: 'Clear value',
+				deleteRemoves: true,
 				delimiter: ',',
 				disabled: false,
 				escapeClearsValue: true,
@@ -39274,14 +39282,26 @@
 		},
 
 		componentWillUnmount: function componentWillUnmount() {
-			document.removeEventListener('touchstart', this.handleTouchOutside);
+			if (!document.removeEventListener && document.detachEvent) {
+				document.detachEvent('ontouchstart', this.handleTouchOutside);
+			} else {
+				document.removeEventListener('touchstart', this.handleTouchOutside);
+			}
 		},
 
 		toggleTouchOutsideEvent: function toggleTouchOutsideEvent(enabled) {
 			if (enabled) {
-				document.addEventListener('touchstart', this.handleTouchOutside);
+				if (!document.addEventListener && document.attachEvent) {
+					document.attachEvent('ontouchstart', this.handleTouchOutside);
+				} else {
+					document.addEventListener('touchstart', this.handleTouchOutside);
+				}
 			} else {
-				document.removeEventListener('touchstart', this.handleTouchOutside);
+				if (!document.removeEventListener && document.detachEvent) {
+					document.detachEvent('ontouchstart', this.handleTouchOutside);
+				} else {
+					document.removeEventListener('touchstart', this.handleTouchOutside);
+				}
 			}
 		},
 
@@ -39556,6 +39576,13 @@
 					}
 					this.focusStartOption();
 					break;
+				case 46:
+					// backspace
+					if (!this.state.inputValue && this.props.deleteRemoves) {
+						event.preventDefault();
+						this.popValue();
+					}
+					return;
 				default:
 					return;
 			}
@@ -39673,7 +39700,18 @@
 
 		addValue: function addValue(value) {
 			var valueArray = this.getValueArray(this.props.value);
+			var visibleOptions = this._visibleOptions.filter(function (val) {
+				return !val.disabled;
+			});
+			var lastValueIndex = visibleOptions.indexOf(value);
 			this.setValue(valueArray.concat(value));
+			if (visibleOptions.length - 1 === lastValueIndex) {
+				// the last option was selected; focus the second-last one
+				this.focusOption(visibleOptions[lastValueIndex - 1]);
+			} else if (visibleOptions.length > lastValueIndex) {
+				// focus the option below the selected one
+				this.focusOption(visibleOptions[lastValueIndex + 1]);
+			}
 		},
 
 		popValue: function popValue() {
@@ -39757,7 +39795,7 @@
 				this.setState({
 					isOpen: true,
 					inputValue: '',
-					focusedOption: this._focusedOption || options[dir === 'next' ? 0 : options.length - 1].option
+					focusedOption: this._focusedOption || (options.length ? options[dir === 'next' ? 0 : options.length - 1].option : null)
 				});
 				return;
 			}
@@ -39881,74 +39919,75 @@
 		},
 
 		renderInput: function renderInput(valueArray, focusedOptionIndex) {
-			var _this5 = this;
+			var _classNames,
+			    _this5 = this;
+
+			var className = (0, _classnames2['default'])('Select-input', this.props.inputProps.className);
+			var isOpen = !!this.state.isOpen;
+
+			var ariaOwns = (0, _classnames2['default'])((_classNames = {}, _defineProperty(_classNames, this._instancePrefix + '-list', isOpen), _defineProperty(_classNames, this._instancePrefix + '-backspace-remove-message', this.props.multi && !this.props.disabled && this.state.isFocused && !this.state.inputValue), _classNames));
+
+			// TODO: Check how this project includes Object.assign()
+			var inputProps = _extends({}, this.props.inputProps, {
+				role: 'combobox',
+				'aria-expanded': '' + isOpen,
+				'aria-owns': ariaOwns,
+				'aria-haspopup': '' + isOpen,
+				'aria-activedescendant': isOpen ? this._instancePrefix + '-option-' + focusedOptionIndex : this._instancePrefix + '-value',
+				'aria-labelledby': this.props['aria-labelledby'],
+				'aria-label': this.props['aria-label'],
+				className: className,
+				tabIndex: this.props.tabIndex,
+				onBlur: this.handleInputBlur,
+				onChange: this.handleInputChange,
+				onFocus: this.handleInputFocus,
+				ref: function ref(_ref) {
+					return _this5.input = _ref;
+				},
+				required: this.state.required,
+				value: this.state.inputValue
+			});
 
 			if (this.props.inputRenderer) {
-				return this.props.inputRenderer();
-			} else {
-				var _classNames;
-
-				var className = (0, _classnames2['default'])('Select-input', this.props.inputProps.className);
-				var isOpen = !!this.state.isOpen;
-
-				var ariaOwns = (0, _classnames2['default'])((_classNames = {}, _defineProperty(_classNames, this._instancePrefix + '-list', isOpen), _defineProperty(_classNames, this._instancePrefix + '-backspace-remove-message', this.props.multi && !this.props.disabled && this.state.isFocused && !this.state.inputValue), _classNames));
-
-				// TODO: Check how this project includes Object.assign()
-				var inputProps = _extends({}, this.props.inputProps, {
-					role: 'combobox',
-					'aria-expanded': '' + isOpen,
-					'aria-owns': ariaOwns,
-					'aria-haspopup': '' + isOpen,
-					'aria-activedescendant': isOpen ? this._instancePrefix + '-option-' + focusedOptionIndex : this._instancePrefix + '-value',
-					'aria-labelledby': this.props['aria-labelledby'],
-					'aria-label': this.props['aria-label'],
-					className: className,
-					tabIndex: this.props.tabIndex,
-					onBlur: this.handleInputBlur,
-					onChange: this.handleInputChange,
-					onFocus: this.handleInputFocus,
-					ref: function ref(_ref) {
-						return _this5.input = _ref;
-					},
-					required: this.state.required,
-					value: this.state.inputValue
-				});
-
-				if (this.props.disabled || !this.props.searchable) {
-					var _props$inputProps = this.props.inputProps;
-					var inputClassName = _props$inputProps.inputClassName;
-
-					var divProps = _objectWithoutProperties(_props$inputProps, ['inputClassName']);
-
-					return _react2['default'].createElement('div', _extends({}, divProps, {
-						role: 'combobox',
-						'aria-expanded': isOpen,
-						'aria-owns': isOpen ? this._instancePrefix + '-list' : this._instancePrefix + '-value',
-						'aria-activedescendant': isOpen ? this._instancePrefix + '-option-' + focusedOptionIndex : this._instancePrefix + '-value',
-						className: className,
-						tabIndex: this.props.tabIndex || 0,
-						onBlur: this.handleInputBlur,
-						onFocus: this.handleInputFocus,
-						ref: function (ref) {
-							return _this5.input = ref;
-						},
-						'aria-readonly': '' + !!this.props.disabled,
-						style: { border: 0, width: 1, display: 'inline-block' } }));
-				}
-
-				if (this.props.autosize) {
-					return _react2['default'].createElement(_reactInputAutosize2['default'], _extends({}, inputProps, { minWidth: '5px' }));
-				}
-				return _react2['default'].createElement(
-					'div',
-					{ className: className },
-					_react2['default'].createElement('input', inputProps)
-				);
+				return this.props.inputRenderer(inputProps);
 			}
+
+			if (this.props.disabled || !this.props.searchable) {
+				var _props$inputProps = this.props.inputProps;
+				var inputClassName = _props$inputProps.inputClassName;
+
+				var divProps = _objectWithoutProperties(_props$inputProps, ['inputClassName']);
+
+				return _react2['default'].createElement('div', _extends({}, divProps, {
+					role: 'combobox',
+					'aria-expanded': isOpen,
+					'aria-owns': isOpen ? this._instancePrefix + '-list' : this._instancePrefix + '-value',
+					'aria-activedescendant': isOpen ? this._instancePrefix + '-option-' + focusedOptionIndex : this._instancePrefix + '-value',
+					className: className,
+					tabIndex: this.props.tabIndex || 0,
+					onBlur: this.handleInputBlur,
+					onFocus: this.handleInputFocus,
+					ref: function (ref) {
+						return _this5.input = ref;
+					},
+					'aria-readonly': '' + !!this.props.disabled,
+					style: { border: 0, width: 1, display: 'inline-block' } }));
+			}
+
+			if (this.props.autosize) {
+				return _react2['default'].createElement(_reactInputAutosize2['default'], _extends({}, inputProps, { minWidth: '5' }));
+			}
+			return _react2['default'].createElement(
+				'div',
+				{ className: className },
+				_react2['default'].createElement('input', inputProps)
+			);
 		},
 
 		renderClear: function renderClear() {
 			if (!this.props.clearable || !this.props.value || this.props.value === 0 || this.props.multi && !this.props.value.length || this.props.disabled || this.props.isLoading) return;
+			var clear = this.props.clearRenderer();
+
 			return _react2['default'].createElement(
 				'span',
 				{ className: 'Select-clear-zone', title: this.props.multi ? this.props.clearAllText : this.props.clearValueText,
@@ -39958,13 +39997,14 @@
 					onTouchMove: this.handleTouchMove,
 					onTouchEnd: this.handleTouchEndClearValue
 				},
-				_react2['default'].createElement('span', { className: 'Select-clear', dangerouslySetInnerHTML: { __html: '&times;' } })
+				clear
 			);
 		},
 
 		renderArrow: function renderArrow() {
 			var onMouseDown = this.handleMouseDownOnArrow;
-			var arrow = this.props.arrowRenderer({ onMouseDown: onMouseDown });
+			var isOpen = this.state.isOpen;
+			var arrow = this.props.arrowRenderer({ onMouseDown: onMouseDown, isOpen: isOpen });
 
 			return _react2['default'].createElement(
 				'span',
@@ -40534,6 +40574,33 @@
 	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
+	exports['default'] = clearRenderer;
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function clearRenderer() {
+		return _react2['default'].createElement('span', {
+			className: 'Select-clear',
+			dangerouslySetInnerHTML: { __html: '&times;' }
+		});
+	}
+
+	;
+	module.exports = exports['default'];
+
+/***/ },
+/* 311 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -40567,18 +40634,26 @@
 		children: _react2['default'].PropTypes.func.isRequired, // Child function responsible for creating the inner Select component; (props: Object): PropTypes.element
 		ignoreAccents: _react2['default'].PropTypes.bool, // strip diacritics when filtering; defaults to true
 		ignoreCase: _react2['default'].PropTypes.bool, // perform case-insensitive filtering; defaults to true
-		loadingPlaceholder: _react.PropTypes.string.isRequired, // replaces the placeholder while options are loading
+		loadingPlaceholder: _react2['default'].PropTypes.oneOfType([// replaces the placeholder while options are loading
+		_react2['default'].PropTypes.string, _react2['default'].PropTypes.node]),
 		loadOptions: _react2['default'].PropTypes.func.isRequired, // callback to load options asynchronously; (inputValue: string, callback: Function): ?Promise
 		options: _react.PropTypes.array.isRequired, // array of options
 		placeholder: _react2['default'].PropTypes.oneOfType([// field placeholder, displayed when there's no value (shared with Select)
 		_react2['default'].PropTypes.string, _react2['default'].PropTypes.node]),
+		noResultsText: _react2['default'].PropTypes.oneOfType([// field noResultsText, displayed when no options come back from the server
+		_react2['default'].PropTypes.string, _react2['default'].PropTypes.node]),
+		onChange: _react2['default'].PropTypes.func, // onChange handler: function (newValue) {}
 		searchPromptText: _react2['default'].PropTypes.oneOfType([// label to prompt for search input
-		_react2['default'].PropTypes.string, _react2['default'].PropTypes.node])
-	};
+		_react2['default'].PropTypes.string, _react2['default'].PropTypes.node]),
+		onInputChange: _react2['default'].PropTypes.func, // optional for keeping track of what is being typed
+		value: _react2['default'].PropTypes.any };
+
+	// initial field value
+	var defaultCache = {};
 
 	var defaultProps = {
 		autoload: true,
-		cache: {},
+		cache: defaultCache,
 		children: defaultChildren,
 		ignoreAccents: true,
 		ignoreCase: true,
@@ -40594,6 +40669,8 @@
 			_classCallCheck(this, Async);
 
 			_get(Object.getPrototypeOf(Async.prototype), 'constructor', this).call(this, props, context);
+
+			this._cache = props.cache === defaultCache ? {} : props.cache;
 
 			this.state = {
 				isLoading: false,
@@ -40625,13 +40702,18 @@
 				});
 			}
 		}, {
+			key: 'clearOptions',
+			value: function clearOptions() {
+				this.setState({ options: [] });
+			}
+		}, {
 			key: 'loadOptions',
 			value: function loadOptions(inputValue) {
 				var _this2 = this;
 
-				var _props = this.props;
-				var cache = _props.cache;
-				var loadOptions = _props.loadOptions;
+				var loadOptions = this.props.loadOptions;
+
+				var cache = this._cache;
 
 				if (cache && cache.hasOwnProperty(inputValue)) {
 					this.setState({
@@ -40681,9 +40763,10 @@
 		}, {
 			key: '_onInputChange',
 			value: function _onInputChange(inputValue) {
-				var _props2 = this.props;
-				var ignoreAccents = _props2.ignoreAccents;
-				var ignoreCase = _props2.ignoreCase;
+				var _props = this.props;
+				var ignoreAccents = _props.ignoreAccents;
+				var ignoreCase = _props.ignoreCase;
+				var onInputChange = _props.onInputChange;
 
 				if (ignoreAccents) {
 					inputValue = (0, _utilsStripDiacritics2['default'])(inputValue);
@@ -40693,24 +40776,70 @@
 					inputValue = inputValue.toLowerCase();
 				}
 
+				if (onInputChange) {
+					onInputChange(inputValue);
+				}
+
 				return this.loadOptions(inputValue);
+			}
+		}, {
+			key: 'inputValue',
+			value: function inputValue() {
+				if (this.select) {
+					return this.select.state.inputValue;
+				}
+				return '';
+			}
+		}, {
+			key: 'noResultsText',
+			value: function noResultsText() {
+				var _props2 = this.props;
+				var loadingPlaceholder = _props2.loadingPlaceholder;
+				var noResultsText = _props2.noResultsText;
+				var searchPromptText = _props2.searchPromptText;
+				var isLoading = this.state.isLoading;
+
+				var inputValue = this.inputValue();
+
+				if (isLoading) {
+					return loadingPlaceholder;
+				}
+				if (inputValue && noResultsText) {
+					return noResultsText;
+				}
+				return searchPromptText;
+			}
+		}, {
+			key: 'focus',
+			value: function focus() {
+				this.select.focus();
 			}
 		}, {
 			key: 'render',
 			value: function render() {
+				var _this3 = this;
+
 				var _props3 = this.props;
 				var children = _props3.children;
 				var loadingPlaceholder = _props3.loadingPlaceholder;
 				var placeholder = _props3.placeholder;
-				var searchPromptText = _props3.searchPromptText;
 				var _state = this.state;
 				var isLoading = _state.isLoading;
 				var options = _state.options;
 
 				var props = {
-					noResultsText: isLoading ? loadingPlaceholder : searchPromptText,
+					noResultsText: this.noResultsText(),
 					placeholder: isLoading ? loadingPlaceholder : placeholder,
-					options: isLoading ? [] : options
+					options: isLoading && loadingPlaceholder ? [] : options,
+					ref: function ref(_ref) {
+						return _this3.select = _ref;
+					},
+					onChange: function onChange(newValues) {
+						if (_this3.props.multi && _this3.props.value && newValues.length > _this3.props.value.length) {
+							_this3.clearOptions();
+						}
+						_this3.props.onChange(newValues);
+					}
 				};
 
 				return children(_extends({}, this.props, props, {
@@ -40734,7 +40863,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 311 */
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40751,6 +40880,16 @@
 
 	var _Select2 = _interopRequireDefault(_Select);
 
+	function reduce(obj) {
+		var props = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+		return Object.keys(obj).reduce(function (props, key) {
+			var value = obj[key];
+			if (value !== undefined) props[key] = value;
+			return props;
+		}, props);
+	}
+
 	var AsyncCreatable = _react2['default'].createClass({
 		displayName: 'AsyncCreatableSelect',
 
@@ -40765,10 +40904,14 @@
 						_Select2['default'].Creatable,
 						_this.props,
 						function (creatableProps) {
-							return _react2['default'].createElement(_Select2['default'], _extends({}, asyncProps, creatableProps, {
+							return _react2['default'].createElement(_Select2['default'], _extends({}, reduce(asyncProps, reduce(creatableProps, {})), {
 								onInputChange: function (input) {
 									creatableProps.onInputChange(input);
 									return asyncProps.onInputChange(input);
+								},
+								ref: function (ref) {
+									creatableProps.ref(ref);
+									asyncProps.ref(ref);
 								}
 							}));
 						}
@@ -40781,7 +40924,7 @@
 	module.exports = AsyncCreatable;
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -40836,6 +40979,15 @@
 			// ({ label: string, labelKey: string, valueKey: string }): Object
 			newOptionCreator: _react2['default'].PropTypes.func,
 
+			// input change handler: function (inputValue) {}
+			onInputChange: _react2['default'].PropTypes.func,
+
+			// input keyDown handler: function (event) {}
+			onInputKeyDown: _react2['default'].PropTypes.func,
+
+			// new option click handler: function (option) {}
+			onNewOptionClick: _react2['default'].PropTypes.func,
+
 			// See Select.propTypes.options
 			options: _react2['default'].PropTypes.array,
 
@@ -40872,6 +41024,7 @@
 			var _props = this.props;
 			var isValidNewOption = _props.isValidNewOption;
 			var newOptionCreator = _props.newOptionCreator;
+			var onNewOptionClick = _props.onNewOptionClick;
 			var _props$options = _props.options;
 			var options = _props$options === undefined ? [] : _props$options;
 			var shouldKeyDownEventCreateNewOption = _props.shouldKeyDownEventCreateNewOption;
@@ -40882,9 +41035,13 @@
 
 				// Don't add the same option twice.
 				if (_isOptionUnique) {
-					options.unshift(option);
+					if (onNewOptionClick) {
+						onNewOptionClick(option);
+					} else {
+						options.unshift(option);
 
-					this.select.selectValue(option);
+						this.select.selectValue(option);
+					}
 				}
 			}
 		},
@@ -40954,17 +41111,26 @@
 			var menuRenderer = this.props.menuRenderer;
 
 			return menuRenderer(_extends({}, params, {
-				onSelect: this.onOptionSelect
+				onSelect: this.onOptionSelect,
+				selectValue: this.onOptionSelect
 			}));
 		},
 
 		onInputChange: function onInputChange(input) {
+			var onInputChange = this.props.onInputChange;
+
+			if (onInputChange) {
+				onInputChange(input);
+			}
+
 			// This value may be needed in between Select mounts (when this.select is null)
 			this.inputValue = input;
 		},
 
 		onInputKeyDown: function onInputKeyDown(event) {
-			var shouldKeyDownEventCreateNewOption = this.props.shouldKeyDownEventCreateNewOption;
+			var _props3 = this.props;
+			var shouldKeyDownEventCreateNewOption = _props3.shouldKeyDownEventCreateNewOption;
+			var onInputKeyDown = _props3.onInputKeyDown;
 
 			var focusedOption = this.select.getFocusedOption();
 
@@ -40973,6 +41139,8 @@
 
 				// Prevent decorated Select from doing anything additional with this keyDown event
 				event.preventDefault();
+			} else if (onInputKeyDown) {
+				onInputKeyDown(event);
 			}
 		},
 
@@ -40987,13 +41155,20 @@
 		render: function render() {
 			var _this = this;
 
-			var _props3 = this.props;
-			var _props3$children = _props3.children;
-			var children = _props3$children === undefined ? defaultChildren : _props3$children;
-			var newOptionCreator = _props3.newOptionCreator;
-			var shouldKeyDownEventCreateNewOption = _props3.shouldKeyDownEventCreateNewOption;
+			var _props4 = this.props;
+			var newOptionCreator = _props4.newOptionCreator;
+			var shouldKeyDownEventCreateNewOption = _props4.shouldKeyDownEventCreateNewOption;
 
-			var restProps = _objectWithoutProperties(_props3, ['children', 'newOptionCreator', 'shouldKeyDownEventCreateNewOption']);
+			var restProps = _objectWithoutProperties(_props4, ['newOptionCreator', 'shouldKeyDownEventCreateNewOption']);
+
+			var children = this.props.children;
+
+			// We can't use destructuring default values to set the children,
+			// because it won't apply work if `children` is null. A falsy check is
+			// more reliable in real world use-cases.
+			if (!children) {
+				children = defaultChildren;
+			}
 
 			var props = _extends({}, restProps, {
 				allowCreate: true,
@@ -41070,7 +41245,7 @@
 	module.exports = Creatable;
 
 /***/ },
-/* 313 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41186,7 +41361,7 @@
 	module.exports = Option;
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -41297,16 +41472,16 @@
 	module.exports = Value;
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(316);
+	var content = __webpack_require__(317);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(318)(content, {});
+	var update = __webpack_require__(319)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -41323,21 +41498,21 @@
 	}
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(317)();
+	exports = module.exports = __webpack_require__(318)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "/**\n * React Select\n * ============\n * Created by Jed Watson and Joss Mackison for KeystoneJS, http://www.keystonejs.com/\n * https://twitter.com/jedwatson https://twitter.com/jossmackison https://twitter.com/keystonejs\n * MIT License: https://github.com/JedWatson/react-select\n*/\n.Select {\n  position: relative;\n}\n.Select,\n.Select div,\n.Select input,\n.Select span {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.Select.is-disabled > .Select-control {\n  background-color: #f9f9f9;\n}\n.Select.is-disabled > .Select-control:hover {\n  box-shadow: none;\n}\n.Select.is-disabled .Select-arrow-zone {\n  cursor: default;\n  pointer-events: none;\n  opacity: 0.35;\n}\n.Select-control {\n  background-color: #fff;\n  border-color: #d9d9d9 #ccc #b3b3b3;\n  border-radius: 4px;\n  border: 1px solid #ccc;\n  color: #333;\n  cursor: default;\n  display: table;\n  border-spacing: 0;\n  border-collapse: separate;\n  height: 36px;\n  outline: none;\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n}\n.Select-control:hover {\n  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);\n}\n.Select-control .Select-input:focus {\n  outline: none;\n}\n.is-searchable.is-open > .Select-control {\n  cursor: text;\n}\n.is-open > .Select-control {\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  background: #fff;\n  border-color: #b3b3b3 #ccc #d9d9d9;\n}\n.is-open > .Select-control > .Select-arrow {\n  border-color: transparent transparent #999;\n  border-width: 0 5px 5px;\n}\n.is-searchable.is-focused:not(.is-open) > .Select-control {\n  cursor: text;\n}\n.is-focused:not(.is-open) > .Select-control {\n  border-color: #007eff;\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);\n}\n.Select-placeholder,\n.Select--single > .Select-control .Select-value {\n  bottom: 0;\n  color: #aaa;\n  left: 0;\n  line-height: 34px;\n  padding-left: 10px;\n  padding-right: 10px;\n  position: absolute;\n  right: 0;\n  top: 0;\n  max-width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.has-value.Select--single > .Select-control .Select-value .Select-value-label,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {\n  color: #333;\n}\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label {\n  cursor: pointer;\n  text-decoration: none;\n}\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label:hover,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {\n  color: #007eff;\n  outline: none;\n  text-decoration: underline;\n}\n.Select-input {\n  height: 34px;\n  padding-left: 10px;\n  padding-right: 10px;\n  vertical-align: middle;\n}\n.Select-input > input {\n  width: 100%;\n  background: none transparent;\n  border: 0 none;\n  box-shadow: none;\n  cursor: default;\n  display: inline-block;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  outline: none;\n  line-height: 14px;\n  /* For IE 8 compatibility */\n  padding: 8px 0 12px;\n  /* For IE 8 compatibility */\n  -webkit-appearance: none;\n}\n.is-focused .Select-input > input {\n  cursor: text;\n}\n.has-value.is-pseudo-focused .Select-input {\n  opacity: 0;\n}\n.Select-control:not(.is-searchable) > .Select-input {\n  outline: none;\n}\n.Select-loading-zone {\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 16px;\n}\n.Select-loading {\n  -webkit-animation: Select-animation-spin 400ms infinite linear;\n  -o-animation: Select-animation-spin 400ms infinite linear;\n  animation: Select-animation-spin 400ms infinite linear;\n  width: 16px;\n  height: 16px;\n  box-sizing: border-box;\n  border-radius: 50%;\n  border: 2px solid #ccc;\n  border-right-color: #333;\n  display: inline-block;\n  position: relative;\n  vertical-align: middle;\n}\n.Select-clear-zone {\n  -webkit-animation: Select-animation-fadeIn 200ms;\n  -o-animation: Select-animation-fadeIn 200ms;\n  animation: Select-animation-fadeIn 200ms;\n  color: #999;\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 17px;\n}\n.Select-clear-zone:hover {\n  color: #D0021B;\n}\n.Select-clear {\n  display: inline-block;\n  font-size: 18px;\n  line-height: 1;\n}\n.Select--multi .Select-clear-zone {\n  width: 17px;\n}\n.Select-arrow-zone {\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 25px;\n  padding-right: 5px;\n}\n.Select-arrow {\n  border-color: #999 transparent transparent;\n  border-style: solid;\n  border-width: 5px 5px 2.5px;\n  display: inline-block;\n  height: 0;\n  width: 0;\n}\n.is-open .Select-arrow,\n.Select-arrow-zone:hover > .Select-arrow {\n  border-top-color: #666;\n}\n.Select--multi .Select-multi-value-wrapper {\n  display: inline-block;\n}\n.Select .Select-aria-only {\n  display: inline-block;\n  height: 1px;\n  width: 1px;\n  margin: -1px;\n  clip: rect(0, 0, 0, 0);\n  overflow: hidden;\n}\n@-webkit-keyframes Select-animation-fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@keyframes Select-animation-fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.Select-menu-outer {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: #fff;\n  border: 1px solid #ccc;\n  border-top-color: #e6e6e6;\n  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);\n  box-sizing: border-box;\n  margin-top: -1px;\n  max-height: 200px;\n  position: absolute;\n  top: 100%;\n  width: 100%;\n  z-index: 1;\n  -webkit-overflow-scrolling: touch;\n}\n.Select-menu {\n  max-height: 198px;\n  overflow-y: auto;\n}\n.Select-option {\n  box-sizing: border-box;\n  background-color: #fff;\n  color: #666666;\n  cursor: pointer;\n  display: block;\n  padding: 8px 10px;\n}\n.Select-option:last-child {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\n.Select-option.is-selected {\n  background-color: #f5faff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.04);\n  color: #333;\n}\n.Select-option.is-focused {\n  background-color: #ebf5ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.08);\n  color: #333;\n}\n.Select-option.is-disabled {\n  color: #cccccc;\n  cursor: default;\n}\n.Select-noresults {\n  box-sizing: border-box;\n  color: #999999;\n  cursor: default;\n  display: block;\n  padding: 8px 10px;\n}\n.Select--multi .Select-input {\n  vertical-align: middle;\n  margin-left: 10px;\n  padding: 0;\n}\n.Select--multi.has-value .Select-input {\n  margin-left: 5px;\n}\n.Select--multi .Select-value {\n  background-color: #ebf5ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.08);\n  border-radius: 2px;\n  border: 1px solid #c2e0ff;\n  /* Fallback color for IE 8 */\n  border: 1px solid rgba(0, 126, 255, 0.24);\n  color: #007eff;\n  display: inline-block;\n  font-size: 0.9em;\n  line-height: 1.4;\n  margin-left: 5px;\n  margin-top: 5px;\n  vertical-align: top;\n}\n.Select--multi .Select-value-icon,\n.Select--multi .Select-value-label {\n  display: inline-block;\n  vertical-align: middle;\n}\n.Select--multi .Select-value-label {\n  border-bottom-right-radius: 2px;\n  border-top-right-radius: 2px;\n  cursor: default;\n  padding: 2px 5px;\n}\n.Select--multi a.Select-value-label {\n  color: #007eff;\n  cursor: pointer;\n  text-decoration: none;\n}\n.Select--multi a.Select-value-label:hover {\n  text-decoration: underline;\n}\n.Select--multi .Select-value-icon {\n  cursor: pointer;\n  border-bottom-left-radius: 2px;\n  border-top-left-radius: 2px;\n  border-right: 1px solid #c2e0ff;\n  /* Fallback color for IE 8 */\n  border-right: 1px solid rgba(0, 126, 255, 0.24);\n  padding: 1px 5px 3px;\n}\n.Select--multi .Select-value-icon:hover,\n.Select--multi .Select-value-icon:focus {\n  background-color: #d8eafd;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 113, 230, 0.08);\n  color: #0071e6;\n}\n.Select--multi .Select-value-icon:active {\n  background-color: #c2e0ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.24);\n}\n.Select--multi.is-disabled .Select-value {\n  background-color: #fcfcfc;\n  border: 1px solid #e3e3e3;\n  color: #333;\n}\n.Select--multi.is-disabled .Select-value-icon {\n  cursor: not-allowed;\n  border-right: 1px solid #e3e3e3;\n}\n.Select--multi.is-disabled .Select-value-icon:hover,\n.Select--multi.is-disabled .Select-value-icon:focus,\n.Select--multi.is-disabled .Select-value-icon:active {\n  background-color: #fcfcfc;\n}\n@keyframes Select-animation-spin {\n  to {\n    transform: rotate(1turn);\n  }\n}\n@-webkit-keyframes Select-animation-spin {\n  to {\n    -webkit-transform: rotate(1turn);\n  }\n}\n", ""]);
+	exports.push([module.id, "/**\n * React Select\n * ============\n * Created by Jed Watson and Joss Mackison for KeystoneJS, http://www.keystonejs.com/\n * https://twitter.com/jedwatson https://twitter.com/jossmackison https://twitter.com/keystonejs\n * MIT License: https://github.com/JedWatson/react-select\n*/\n.Select {\n  position: relative;\n}\n.Select,\n.Select div,\n.Select input,\n.Select span {\n  -webkit-box-sizing: border-box;\n  -moz-box-sizing: border-box;\n  box-sizing: border-box;\n}\n.Select.is-disabled > .Select-control {\n  background-color: #f9f9f9;\n}\n.Select.is-disabled > .Select-control:hover {\n  box-shadow: none;\n}\n.Select.is-disabled .Select-arrow-zone {\n  cursor: default;\n  pointer-events: none;\n  opacity: 0.35;\n}\n.Select-control {\n  background-color: #fff;\n  border-color: #d9d9d9 #ccc #b3b3b3;\n  border-radius: 4px;\n  border: 1px solid #ccc;\n  color: #333;\n  cursor: default;\n  display: table;\n  border-spacing: 0;\n  border-collapse: separate;\n  height: 36px;\n  outline: none;\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n}\n.Select-control:hover {\n  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);\n}\n.Select-control .Select-input:focus {\n  outline: none;\n}\n.is-searchable.is-open > .Select-control {\n  cursor: text;\n}\n.is-open > .Select-control {\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  background: #fff;\n  border-color: #b3b3b3 #ccc #d9d9d9;\n}\n.is-open > .Select-control .Select-arrow {\n  top: -2px;\n  border-color: transparent transparent #999;\n  border-width: 0 5px 5px;\n}\n.is-searchable.is-focused:not(.is-open) > .Select-control {\n  cursor: text;\n}\n.is-focused:not(.is-open) > .Select-control {\n  border-color: #007eff;\n  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 3px rgba(0, 126, 255, 0.1);\n}\n.Select-placeholder,\n.Select--single > .Select-control .Select-value {\n  bottom: 0;\n  color: #aaa;\n  left: 0;\n  line-height: 34px;\n  padding-left: 10px;\n  padding-right: 10px;\n  position: absolute;\n  right: 0;\n  top: 0;\n  max-width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n.has-value.Select--single > .Select-control .Select-value .Select-value-label,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {\n  color: #333;\n}\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label {\n  cursor: pointer;\n  text-decoration: none;\n}\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label:hover,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,\n.has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,\n.has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {\n  color: #007eff;\n  outline: none;\n  text-decoration: underline;\n}\n.Select-input {\n  height: 34px;\n  padding-left: 10px;\n  padding-right: 10px;\n  vertical-align: middle;\n}\n.Select-input > input {\n  width: 100%;\n  background: none transparent;\n  border: 0 none;\n  box-shadow: none;\n  cursor: default;\n  display: inline-block;\n  font-family: inherit;\n  font-size: inherit;\n  margin: 0;\n  outline: none;\n  line-height: 14px;\n  /* For IE 8 compatibility */\n  padding: 8px 0 12px;\n  /* For IE 8 compatibility */\n  -webkit-appearance: none;\n}\n.is-focused .Select-input > input {\n  cursor: text;\n}\n.has-value.is-pseudo-focused .Select-input {\n  opacity: 0;\n}\n.Select-control:not(.is-searchable) > .Select-input {\n  outline: none;\n}\n.Select-loading-zone {\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 16px;\n}\n.Select-loading {\n  -webkit-animation: Select-animation-spin 400ms infinite linear;\n  -o-animation: Select-animation-spin 400ms infinite linear;\n  animation: Select-animation-spin 400ms infinite linear;\n  width: 16px;\n  height: 16px;\n  box-sizing: border-box;\n  border-radius: 50%;\n  border: 2px solid #ccc;\n  border-right-color: #333;\n  display: inline-block;\n  position: relative;\n  vertical-align: middle;\n}\n.Select-clear-zone {\n  -webkit-animation: Select-animation-fadeIn 200ms;\n  -o-animation: Select-animation-fadeIn 200ms;\n  animation: Select-animation-fadeIn 200ms;\n  color: #999;\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 17px;\n}\n.Select-clear-zone:hover {\n  color: #D0021B;\n}\n.Select-clear {\n  display: inline-block;\n  font-size: 18px;\n  line-height: 1;\n}\n.Select--multi .Select-clear-zone {\n  width: 17px;\n}\n.Select-arrow-zone {\n  cursor: pointer;\n  display: table-cell;\n  position: relative;\n  text-align: center;\n  vertical-align: middle;\n  width: 25px;\n  padding-right: 5px;\n}\n.Select-arrow {\n  border-color: #999 transparent transparent;\n  border-style: solid;\n  border-width: 5px 5px 2.5px;\n  display: inline-block;\n  height: 0;\n  width: 0;\n  position: relative;\n}\n.is-open .Select-arrow,\n.Select-arrow-zone:hover > .Select-arrow {\n  border-top-color: #666;\n}\n.Select--multi .Select-multi-value-wrapper {\n  display: inline-block;\n}\n.Select .Select-aria-only {\n  display: inline-block;\n  height: 1px;\n  width: 1px;\n  margin: -1px;\n  clip: rect(0, 0, 0, 0);\n  overflow: hidden;\n  float: left;\n}\n@-webkit-keyframes Select-animation-fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n@keyframes Select-animation-fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n.Select-menu-outer {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n  background-color: #fff;\n  border: 1px solid #ccc;\n  border-top-color: #e6e6e6;\n  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);\n  box-sizing: border-box;\n  margin-top: -1px;\n  max-height: 200px;\n  position: absolute;\n  top: 100%;\n  width: 100%;\n  z-index: 1;\n  -webkit-overflow-scrolling: touch;\n}\n.Select-menu {\n  max-height: 198px;\n  overflow-y: auto;\n}\n.Select-option {\n  box-sizing: border-box;\n  background-color: #fff;\n  color: #666666;\n  cursor: pointer;\n  display: block;\n  padding: 8px 10px;\n}\n.Select-option:last-child {\n  border-bottom-right-radius: 4px;\n  border-bottom-left-radius: 4px;\n}\n.Select-option.is-selected {\n  background-color: #f5faff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.04);\n  color: #333;\n}\n.Select-option.is-focused {\n  background-color: #ebf5ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.08);\n  color: #333;\n}\n.Select-option.is-disabled {\n  color: #cccccc;\n  cursor: default;\n}\n.Select-noresults {\n  box-sizing: border-box;\n  color: #999999;\n  cursor: default;\n  display: block;\n  padding: 8px 10px;\n}\n.Select--multi .Select-input {\n  vertical-align: middle;\n  margin-left: 10px;\n  padding: 0;\n}\n.Select--multi.has-value .Select-input {\n  margin-left: 5px;\n}\n.Select--multi .Select-value {\n  background-color: #ebf5ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.08);\n  border-radius: 2px;\n  border: 1px solid #c2e0ff;\n  /* Fallback color for IE 8 */\n  border: 1px solid rgba(0, 126, 255, 0.24);\n  color: #007eff;\n  display: inline-block;\n  font-size: 0.9em;\n  line-height: 1.4;\n  margin-left: 5px;\n  margin-top: 5px;\n  vertical-align: top;\n}\n.Select--multi .Select-value-icon,\n.Select--multi .Select-value-label {\n  display: inline-block;\n  vertical-align: middle;\n}\n.Select--multi .Select-value-label {\n  border-bottom-right-radius: 2px;\n  border-top-right-radius: 2px;\n  cursor: default;\n  padding: 2px 5px;\n}\n.Select--multi a.Select-value-label {\n  color: #007eff;\n  cursor: pointer;\n  text-decoration: none;\n}\n.Select--multi a.Select-value-label:hover {\n  text-decoration: underline;\n}\n.Select--multi .Select-value-icon {\n  cursor: pointer;\n  border-bottom-left-radius: 2px;\n  border-top-left-radius: 2px;\n  border-right: 1px solid #c2e0ff;\n  /* Fallback color for IE 8 */\n  border-right: 1px solid rgba(0, 126, 255, 0.24);\n  padding: 1px 5px 3px;\n}\n.Select--multi .Select-value-icon:hover,\n.Select--multi .Select-value-icon:focus {\n  background-color: #d8eafd;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 113, 230, 0.08);\n  color: #0071e6;\n}\n.Select--multi .Select-value-icon:active {\n  background-color: #c2e0ff;\n  /* Fallback color for IE 8 */\n  background-color: rgba(0, 126, 255, 0.24);\n}\n.Select--multi.is-disabled .Select-value {\n  background-color: #fcfcfc;\n  border: 1px solid #e3e3e3;\n  color: #333;\n}\n.Select--multi.is-disabled .Select-value-icon {\n  cursor: not-allowed;\n  border-right: 1px solid #e3e3e3;\n}\n.Select--multi.is-disabled .Select-value-icon:hover,\n.Select--multi.is-disabled .Select-value-icon:focus,\n.Select--multi.is-disabled .Select-value-icon:active {\n  background-color: #fcfcfc;\n}\n@keyframes Select-animation-spin {\n  to {\n    transform: rotate(1turn);\n  }\n}\n@-webkit-keyframes Select-animation-spin {\n  to {\n    -webkit-transform: rotate(1turn);\n  }\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports) {
 
 	/*
@@ -41393,7 +41568,7 @@
 
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -41645,14 +41820,14 @@
 
 
 /***/ },
-/* 319 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! tether-shepherd 1.8.1 */
 
 	(function(root, factory) {
 	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(320)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(321)], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  } else if (typeof exports === 'object') {
 	    module.exports = factory(require('tether'));
 	  } else {
@@ -42396,7 +42571,7 @@
 
 
 /***/ },
-/* 320 */
+/* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! tether 1.4.0 */
@@ -44213,16 +44388,16 @@
 
 
 /***/ },
-/* 321 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(322);
+	var content = __webpack_require__(323);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(318)(content, {});
+	var update = __webpack_require__(319)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -44239,10 +44414,10 @@
 	}
 
 /***/ },
-/* 322 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(317)();
+	exports = module.exports = __webpack_require__(318)();
 	// imports
 
 

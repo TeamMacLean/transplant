@@ -1,8 +1,10 @@
-var Requests = {};
+const Requests = {};
 
 const renderError = require('../lib/renderError');
 const fs = require('fs');
 const config = require('../config.json');
+const moment = require('moment');
+const Event = require('../models/event');
 
 const Request = require('../models/request');
 
@@ -114,6 +116,20 @@ function ProcessRequest(body) {
 
         const constructs = [];
 
+        const species = body['config-species'];
+        let genotypes = body['genotypes'];
+        if (!Array.isArray(genotypes)) {
+            genotypes = [genotypes];
+        }
+
+        if (!species) {
+            return bad(new Error('no species selected'));
+        }
+        if (!genotypes) {
+            return bad(new Error('no genotypes selected'));
+        }
+
+
         // var constructIDs = [];
         for (let key in body) {
             if (Object.prototype.hasOwnProperty.call(body, key)) {
@@ -139,6 +155,9 @@ function ProcessRequest(body) {
                     if (!VECTORS) {
                         return bad(new Error('no vectors'))
                     }
+
+                    console.log('vectors', VECTORS);
+
                     if (!Array.isArray(VECTORS)) {
                         VECTORS = [VECTORS];
                     }
@@ -201,14 +220,149 @@ function ProcessRequest(body) {
         if (!NOTES) {
             return bad(new Error('no NOTES'))
         }
+
+
         const request = {
             date: DATE,
             notes: NOTES,
-            constructs: constructs
+            constructs: constructs,
+            species: species,
+            genotypes: genotypes
         };
 
         return good(request);
     })
+}
+
+function createSteps(request) {
+
+    const THURSDAY = 4;
+
+    let isArabadopsis = false;
+    let isCol0 = false;
+
+    const events = [];
+    let date = moment().startOf('day');
+
+    if (request.species.toLowerCase().indexOf('arabidopsis') > -1) {
+        isArabadopsis = true;
+
+        request.genotypes.map(genomeName => {
+
+            if (genomeName.toLowerCase().indexOf('col-0') || genomeName.toLowerCase().indexOf('col0')) {
+                isCol0 = true;
+            }
+
+        });
+
+    }
+
+    //request received
+
+    events.push({
+        text: 'request received',
+        date: date.format(),
+        requestID: request.id
+    });
+
+    if (isArabadopsis) {
+        if (!isCol0) { //not col0
+
+            //plants sown - next thursday
+            date = date.add(1, 'weeks').isoWeekday(THURSDAY);
+            events.push({
+                text: 'pants sown',
+                date: date.format(),
+                requestID: request.id
+            });
+
+
+            //plants in long day glasshouse - 6 weeks after
+            date = date.add(6, 'weeks');
+            events.push({
+                text: 'plants in long day glasshouse',
+                date: date.format(),
+                requestID: request.id
+            });
+
+
+            //plants dipped - 1-2 weeks after
+            date = date.add(2, 'weeks');
+            events.push({
+                text: 'plants dipped',
+                date: date.format(),
+                requestID: request.id
+            });
+
+        } else {
+            //plants dipped - 3 weeks after
+            date = date.add(3, 'weeks');
+            events.push({
+                text: 'plants dipped',
+                date: date.format(),
+                requestID: request.id
+            });
+        }
+
+
+        //plants bagged - 3 weeks after
+        date = date.add(3, 'weeks');
+        events.push({
+            text: 'plants bagged',
+            date: date.format(),
+            requestID: request.id
+        });
+
+        //plants harvested - 3 weeks after
+        date = date.add(3, 'weeks');
+        events.push({
+            text: 'plants harvested',
+            date: date.format(),
+            requestID: request.id
+        });
+
+        //seeds returned - 1 week after
+        date = date.add(1, 'week');
+        events.push({
+            text: 'seeds returned',
+            date: date.format(),
+            requestID: request.id
+        });
+
+    } else {
+        //plant transformed
+        //trf complete
+    }
+
+
+    return events;
+
+    //TODO return save all
+    //---------------------------------
+    /**
+     *
+     * NON COL-0 ARABIDOPSIS:
+     * request received
+     * plants sown - the next thursday
+     * plants in long-day glasshouse - 6 weeks after previous step
+     * plants dipped/transformed - 3 weeks after previous step
+     * plants bagged - 3 weeks after previous step
+     * plants harvested - 3 weeks after previous step
+     * seeds returned - 1 week after previous step
+     *
+     * ARABIDOPSIS COL-0:
+     * request received
+     * plants dipped/transformed - 1-2 weeks after received
+     * plants bagged - 3 weeks after previous step
+     * seed harvested - 4 weeks after previous step
+     * seed returned - 1 week after previous step
+     *
+     * ALL ELSE:
+     * request received
+     * plant transformed
+     * trf complete
+     *
+     */
 }
 
 /**
@@ -227,12 +381,20 @@ Requests.save = (req, res) => {
             const newRequest = new Request(request);
             newRequest.saveAll({constructs: {strains: true}})
                 .then(savedRequest => {
-                    console.log('saved', savedRequest);
-                    //TODO send email to group leader to sign off request
-                    return res.redirect(`/request/${savedRequest.id}`);
+                    Promise.all(createSteps(savedRequest).map(event => {
+                        return new Event(event).save()
+                    }))
+                        .then(savedEvents => {
+                            return res.redirect(`/request/${savedRequest.id}`);
+                        })
+                        .catch(err => {
+                            //remove saved request if events failed to save
+                            savedRequest.deleteAll({constructs: {strains: true}});
+                            console.error(err);
+                            return res.send(`Failed to save events: ${err}`);
+                        })
                 })
                 .catch(err => {
-                    //TODO deleteAll on request
                     console.error(err);
                     return res.send(`Request Failed: ${err}`);
                 });
@@ -256,6 +418,7 @@ Requests.my = (req, res) => {
 };
 
 Requests.show = (req, res) => {
+
     const id = req.params.id;
     Request.get(id)
         .getJoin({constructs: {strains: true}})

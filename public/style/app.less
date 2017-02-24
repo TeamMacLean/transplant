@@ -3,8 +3,8 @@
 //  height: @input-height !important;
 //}
 
-.is-searchable.is-focused:not(.is-open) > .Select-control{
-  border-color: @primary ;
+.is-searchable.is-focused:not(.is-open) > .Select-control {
+  border-color: @primary;
 }
 
 input[type="submit"] {
@@ -111,7 +111,7 @@ input[type="submit"] {
   .tab {
     height: 100%;
     width: 100%;
-    display: inline-block;
+    display: block;
     vertical-align: middle;
     background-color: #FFFFFF;
     //background-color: ;
@@ -125,6 +125,7 @@ input[type="submit"] {
       background-color: @primary;
       color: #FFFFFF;
       border: none;
+      cursor: pointer;
     }
 
     @media (min-width: @breakpoint) {
@@ -142,7 +143,7 @@ input[type="submit"] {
         top: 50%;
         height: 2px; /* actual text will overlap! */
         margin-top: -1px; /* subtract half the height */
-        line-height: 0; /* centre the text on the base line */
+        //line-height: 0; /* centre the text on the base line */
         text-align: center;
         left: 50%; /* added */
         transform: translateX(-50%) rotate(90deg); /* added translateX */
@@ -156,6 +157,7 @@ input[type="submit"] {
       display: table;
       width: 100%;
       margin: 0;
+      height: 100%;
     }
 
     .is-table-row .is-table-col {
