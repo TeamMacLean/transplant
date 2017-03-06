@@ -28,7 +28,7 @@ Admin.timeline = (req, res) => {
 
                 });
 
-                groups.push({id: request.id, items: items});
+                groups.push({id: request.id, content: request.username + ' ' + request.date, items: items});
 
             });
             return res.render('admin/timeline', {groups, items});

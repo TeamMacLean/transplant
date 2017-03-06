@@ -423,7 +423,12 @@ Requests.show = (req, res) => {
     Request.get(id)
         .getJoin({constructs: {strains: true}})
         .then(request => {
-            return res.render('requests/show', {request});
+
+            request.getStatus()
+                .then(() => {
+                    return res.render('requests/show', {request});
+                })
+                .catch(err => renderError(err, res));
         })
         .catch(err => {
             return renderError(err);
