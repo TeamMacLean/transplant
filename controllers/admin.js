@@ -3,7 +3,11 @@ const Request = require('../models/request');
 
 let Admin = {};
 
-
+/**
+ *
+ * @param req
+ * @param res
+ */
 Admin.timeline = (req, res) => {
 
     Request

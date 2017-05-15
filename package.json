@@ -3,6 +3,24 @@
   "version": "1.0.0",
   "description": "TSL Plant Transformation",
   "main": "server.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "node server.js",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TeamMacLean/transplant.git"
+  },
+  "keywords": [
+    "tsl"
+  ],
+  "author": "Martin Page",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TeamMacLean/transplant/issues"
+  },
+  "homepage": "https://github.com/TeamMacLean/transplant#readme",
   "dependencies": {
     "body-parser": "latest",
     "cookie-parser": "latest",
@@ -26,38 +44,20 @@
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
-    "babel-loader": "^6.2.8",
-    "babel-preset-es2015": "^6.18.0",
-    "babel-preset-react": "^6.16.0",
     "css-loader": "^0.26.1",
     "dragula": "^3.7.2",
-    "gulp-babel": "^6.1.2",
-    "gulp-rename": "^1.2.2",
-    "gulp-uglify": "^2.0.0",
-    "react": "^15.4.1",
-    "react-dom": "^15.4.1",
     "react-select": "^1.0.0-rc.2",
     "react-textarea-autosize": "^4.0.5",
     "style-loader": "^0.13.1",
     "tether-shepherd": "^1.8.1",
-    "webpack": "^1.14.0",
-    "webpack-stream": "^3.2.0"
-  },
-  "scripts": {
-    "test": "mocha",
-    "start": "node server.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/TeamMacLean/transplant.git"
-  },
-  "keywords": [
-    "tsl"
-  ],
-  "author": "Martin Page",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/TeamMacLean/transplant/issues"
-  },
-  "homepage": "https://github.com/TeamMacLean/transplant#readme"
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-react": "^6.23.0",
+    "moment": "^2.18.1",
+    "prepack-webpack-plugin": "^1.1.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "webpack": "^2.3.2"
+  }
 }

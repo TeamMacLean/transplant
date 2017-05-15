@@ -59,6 +59,13 @@ router.route('*')
     });
 
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
 function isAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
@@ -68,6 +75,13 @@ function isAuthenticated(req, res, next) {
     }
 }
 
+/**
+ * 
+ * @param req
+ * @param res
+ * @param next
+ * @returns {*}
+ */
 function isAdmin(req, res, next) {
     if (Util.isAdmin(req.user.username)) {
         return next();

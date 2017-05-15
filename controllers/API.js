@@ -2,6 +2,12 @@ const API = {};
 
 const Event = require('../models/event');
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 API.add = (req, res, next) => {
     new Event({
         requestID: req.body.group,
@@ -16,7 +22,12 @@ API.add = (req, res, next) => {
             return next(err);
         });
 };
-
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 API.move = (req, res, next) => {
 
     Event.get(req.body.eventID)
@@ -35,6 +46,12 @@ API.move = (req, res, next) => {
         })
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 API.update = (req, res, next) => {
 
     Event.get(req.body.eventID)
@@ -53,6 +70,12 @@ API.update = (req, res, next) => {
         })
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ * @param next
+ */
 API.delete = (req, res, next) => {
 
     Event.get(req.body.eventID)

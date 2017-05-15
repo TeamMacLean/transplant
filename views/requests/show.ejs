@@ -2,12 +2,15 @@
 
 <div class="container">
     <h2>Request</h2>
+    <!--STATUS-->
+    <p>Status: <%- request.stastatustus %></p>
+
     <p>ID: <%- request.id %></p>
     <p>Username: <%- request.username %></p>
     <p>Approved: <%- request.approved %></p>
     <p>Date: <%- request.date %></p>
     <p>Created At: <%- request.createdAt %></p>
-    <p>Status: <%- request.status %></p>
+
 
     <ul>
         <% request.constructs.map(function(construct){ %>

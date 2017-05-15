@@ -10,6 +10,12 @@ const Request = require('../models/request');
 
 const requestLIB = require('request');
 
+/**
+ *
+ * @param username
+ * @returns {*}
+ * @constructor
+ */
 function GetNameFromUsername(username) {
     const found = config.groupLeaders.filter(gl => {
         return gl.username == username;
@@ -22,6 +28,12 @@ function GetNameFromUsername(username) {
     }
 }
 
+/**
+ *
+ * @param req
+ * @returns {Promise}
+ * @constructor
+ */
 function GetAdminInfo(req) {
 
     return new Promise((good, bad) => {
@@ -74,6 +86,11 @@ function GetAdminInfo(req) {
     });
 }
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 Requests.new = (req, res) => {
 
     GetAdminInfo(req).then(adminInfo => {
@@ -110,6 +127,12 @@ Requests.new = (req, res) => {
 
 };
 
+/**
+ *
+ * @param body
+ * @returns {Promise}
+ * @constructor
+ */
 function ProcessRequest(body) {
 
     return new Promise((good, bad) => {
@@ -234,6 +257,11 @@ function ProcessRequest(body) {
     })
 }
 
+/**
+ *
+ * @param request
+ * @returns {Array}
+ */
 function createSteps(request) {
 
     const THURSDAY = 4;
@@ -269,6 +297,9 @@ function createSteps(request) {
         if (!isCol0) { //not col0
 
             //plants sown - next thursday
+            //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
+            //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
+
             date = date.add(1, 'weeks').isoWeekday(THURSDAY);
             events.push({
                 text: 'pants sown',
@@ -278,7 +309,7 @@ function createSteps(request) {
 
 
             //plants in long day glasshouse - 6 weeks after
-            date = date.add(6, 'weeks');
+            date = date.add(6, 'weeks').isoWeekday(THURSDAY);
             events.push({
                 text: 'plants in long day glasshouse',
                 date: date.format(),
@@ -296,7 +327,8 @@ function createSteps(request) {
 
         } else {
             //plants dipped - 3 weeks after
-            date = date.add(3, 'weeks');
+            //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
+            date = date.add(1, 'weeks');
             events.push({
                 text: 'plants dipped',
                 date: date.format(),
@@ -405,18 +437,36 @@ Requests.save = (req, res) => {
         });
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 Requests.my = (req, res) => {
     const username = req.user.username;
     Request.filter({username: username})
         .run()
         .then(requests => {
-            return res.render('requests/my', {requests});
+
+            Promise.all(requests.map(r => {
+                return r.getStatus()
+            }))
+                .then(() => {
+                    return res.render('requests/my', {requests});
+                })
+                .catch(err => renderError(err, res));
+
         })
         .catch(err => {
             return renderError(err, res);
         })
 };
 
+/**
+ *
+ * @param req
+ * @param res
+ */
 Requests.show = (req, res) => {
 
     const id = req.params.id;

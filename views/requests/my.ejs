@@ -1,11 +1,21 @@
 <% include ../head.ejs %>
 
 <div class="container">
-    <ul>
+    <div class="row">
         <% requests.map(function(r){ %>
-        <li><a href="/request/<%- r.id %>"><%- r.id %></a></li>
+        <div class="col6 auto-clear">
+            <a href="/request/<%- r.id %>">
+                <% var approvalString = r.getApprovalString() %>
+                <div class="tile <%- approvalString %>">
+                    <h2><strong>User:</strong> <%- r.username %></h2>
+                    <h3 class="italic"><%- approvalString %></h3>
+                    <br>
+                    <span><strong>Status:</strong> <%- r.status %></span>
+                </div>
+            </a>
+        </div>
         <% }); %>
-    </ul>
+    </div>
 </div>
 
 <% include ../foot.ejs %>

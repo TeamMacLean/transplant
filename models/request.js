@@ -9,12 +9,25 @@ const Request = thinky.createModel('Request', {
     createdAt: type.date().default(r.now()),
     date: type.string().required(),
     approved: type.boolean().default(false),
+    denied: type.boolean().default(false),
     username: type.string().required(),
     species: type.string().required(),
     genotypes: type.array().schema(type.string()).required()
 });
 
 module.exports = Request;
+
+Request.define('getApprovalString', function () {
+    if (this.denied) {
+        return 'denied';
+    }
+    if (this.approved) {
+        return 'approved'
+    }
+    if (!this.approved && !this.denied) {
+        return 'pending';
+    }
+});
 
 Request.define("getStatus", function () {
 
