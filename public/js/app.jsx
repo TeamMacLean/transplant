@@ -653,9 +653,10 @@ const App = React.createClass({
                                 <fieldset>
                                     <label>Cost Code</label>
 
+
                                     <Select.Creatable
                                         name={"config-costcode"}
-                                        value={window.adminInfo.cost[0]}
+                                        value={window.adminInfo.cost}
                                         options={window.adminInfo.cost}
                                         onChange={function (costCode) {
                                             self.setState({costCode});

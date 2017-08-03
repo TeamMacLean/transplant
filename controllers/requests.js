@@ -10,6 +10,9 @@ const Request = require('../models/request');
 
 const requestLIB = require('request');
 
+
+const MAX_POT_COUNT_PER_WEEK = 6;
+
 /**
  *
  * @param username
@@ -18,7 +21,7 @@ const requestLIB = require('request');
  */
 function GetNameFromUsername(username) {
     const found = config.groupLeaders.filter(gl => {
-        return gl.username == username;
+        return gl.username === username;
     });
 
     if (found.length > 0) {
@@ -67,7 +70,7 @@ function GetAdminInfo(req) {
                             }
 
                             const filterd = result.SignatoryList.Signatory.filter(s => {
-                                return s.userName == req.user.username;
+                                return s.userName === req.user.username;
                             });
                             if (filterd.length < 1) {
                                 return good(null);
@@ -221,7 +224,6 @@ function ProcessRequest(body) {
                             GENOMES = [GENOMES];
                         }
 
-
                         const strain = {
                             UID: UID,
                             strain: strainRetrevial,
@@ -240,14 +242,14 @@ function ProcessRequest(body) {
         if (!DATE) {
             return bad(new Error('no DATE'))
         }
-        if (!NOTES) {
-            return bad(new Error('no NOTES'))
-        }
+        // if (!NOTES) {
+        //     return bad(new Error('no NOTES'))
+        // }
 
 
         const request = {
             date: DATE,
-            notes: NOTES,
+            notes: NOTES || '',
             constructs: constructs,
             species: species,
             genotypes: genotypes
@@ -257,144 +259,231 @@ function ProcessRequest(body) {
     })
 }
 
-/**
- *
- * @param request
- * @returns {Array}
- */
-function createSteps(request) {
 
-    const THURSDAY = 4;
+function getAvailableStartDate() {
 
-    let isArabadopsis = false;
-    let isCol0 = false;
 
-    const events = [];
-    let date = moment().startOf('day');
+    return new Promise((good, bad) => {
 
-    if (request.species.toLowerCase().indexOf('arabidopsis') > -1) {
-        isArabadopsis = true;
+        let date = moment().startOf('day');
+        const THURSDAY = 4;
+        date.add(1, 'weeks').isoWeekday(THURSDAY);
 
-        request.genotypes.map(genomeName => {
 
-            if (genomeName.toLowerCase().indexOf('col-0') || genomeName.toLowerCase().indexOf('col0')) {
-                isCol0 = true;
-            }
-
-        });
-
-    }
-
-    //request received
-
-    events.push({
-        text: 'request received',
-        date: date.format(),
-        requestID: request.id
-    });
-
-    if (isArabadopsis) {
-        if (!isCol0) { //not col0
-
-            //plants sown - next thursday
-            //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
-            //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
-
-            date = date.add(1, 'weeks').isoWeekday(THURSDAY);
-            events.push({
-                text: 'pants sown',
+        function checkWeek(date) {
+            Event.count({
                 date: date.format(),
-                requestID: request.id
-            });
+                sowEvent: true
+            })
+                .execute()
+                .then(count => {
 
+                    if (count < MAX_POT_COUNT_PER_WEEK) {
+                        return good(date)
+                    } else {
+                        return checkWeek(date.add(1, 'weeks'));
+                    }
 
-            //plants in long day glasshouse - 6 weeks after
-            date = date.add(6, 'weeks').isoWeekday(THURSDAY);
-            events.push({
-                text: 'plants in long day glasshouse',
-                date: date.format(),
-                requestID: request.id
-            });
-
-
-            //plants dipped - 1-2 weeks after
-            date = date.add(2, 'weeks');
-            events.push({
-                text: 'plants dipped',
-                date: date.format(),
-                requestID: request.id
-            });
-
-        } else {
-            //plants dipped - 3 weeks after
-            //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
-            date = date.add(1, 'weeks');
-            events.push({
-                text: 'plants dipped',
-                date: date.format(),
-                requestID: request.id
-            });
+                })
+                .catch(err => {
+                    return bad(err);
+                })
         }
 
 
-        //plants bagged - 3 weeks after
-        date = date.add(3, 'weeks');
-        events.push({
-            text: 'plants bagged',
-            date: date.format(),
-            requestID: request.id
-        });
+        checkWeek(date); //kick it off
 
-        //plants harvested - 3 weeks after
-        date = date.add(3, 'weeks');
-        events.push({
-            text: 'plants harvested',
-            date: date.format(),
-            requestID: request.id
-        });
-
-        //seeds returned - 1 week after
-        date = date.add(1, 'week');
-        events.push({
-            text: 'seeds returned',
-            date: date.format(),
-            requestID: request.id
-        });
-
-    } else {
-        //plant transformed
-        //trf complete
-    }
+    })
 
 
-    return events;
+    //TODO find out how many slots are available next week, fill them, if more are need repeat each week until all required slots are filled.
+    // const events = [];
+    // let date = moment().startOf('day');
 
-    //TODO return save all
-    //---------------------------------
-    /**
-     *
-     * NON COL-0 ARABIDOPSIS:
-     * request received
-     * plants sown - the next thursday
-     * plants in long-day glasshouse - 6 weeks after previous step
-     * plants dipped/transformed - 3 weeks after previous step
-     * plants bagged - 3 weeks after previous step
-     * plants harvested - 3 weeks after previous step
-     * seeds returned - 1 week after previous step
-     *
-     * ARABIDOPSIS COL-0:
-     * request received
-     * plants dipped/transformed - 1-2 weeks after received
-     * plants bagged - 3 weeks after previous step
-     * seed harvested - 4 weeks after previous step
-     * seed returned - 1 week after previous step
-     *
-     * ALL ELSE:
-     * request received
-     * plant transformed
-     * trf complete
-     *
-     */
+
+    //TODO determine which week there are free pots and how many we can do each week:
+    // const potcCountForRequest = request.constructs.reduce((t1, c) => {
+    //     return t1 + c.strains.reduce((t2, s) => {
+    //         return t2 + s.genomes.length;
+    //     });
+    // });
+
+    // const potsAvailableThisWeek = Request
+
+    //TODO get pots by week
+
+
+    // return date;
+
+}
+
+function nameMeLater(construct, isArabadopsis, isCol0) {
+
+    return new Promise((good, bad) => {
+
+        /**
+         *
+         * NON COL-0 ARABIDOPSIS: LIMIT 36
+         * request received
+         * plants sown - the next thursday
+         * plants in long-day glasshouse - 5 weeks after previous step
+         * plants dipped/transformed - 3 weeks after previous step
+         * plants bagged - 3 weeks after previous step
+         * plants harvested - 3 weeks after previous step
+         * seeds returned - 1 week after previous step
+         *
+         * ARABIDOPSIS COL-0: LIMIT 6
+         * request received
+         * plants dipped/transformed - 1-2 weeks after received
+         * plants bagged - 3 weeks after previous step
+         * seed harvested - 4 weeks after previous step
+         * seed returned - 1 week after previous step
+         *
+         * ALL ELSE:
+         * request received
+         * plant transformed
+         * trf complete
+         *
+         */
+
+            //TODO get available start date
+
+            // let date = moment().startOf('day');
+            // const THURSDAY = 4;
+            // date.add(1, 'weeks').isoWeekday(THURSDAY);
+
+            //TODO test if
+
+        let eventGroup = {events: []}; //TODO work on this first
+
+        getAvailableStartDate()
+            .then(date => {
+
+
+                eventGroup.events.push({
+                    text: 'request received',
+                    date: date.format(),
+                    requestID: construct.requestID
+                });
+
+                if (isArabadopsis) {
+                    if (!isCol0) { //not col0
+
+                        //plants sown - next thursday
+                        //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
+                        //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
+
+                        date = date.add(1, 'weeks').isoWeekday(THURSDAY);
+                        eventGroup.events.push({
+                            text: 'pants sown',
+                            date: date.format(),
+                            sowEvent: true,
+                            requestID: construct.requestID
+                        });
+
+                        //plants in long day glasshouse - 5 weeks after
+                        date = date.add(5, 'weeks').isoWeekday(THURSDAY);
+                        eventGroup.events.push({
+                            text: 'plants in long day glasshouse',
+                            date: date.format(),
+                            requestID: construct.requestID
+                        });
+
+                        //plants dipped - 1-2 weeks after
+                        date = date.add(2, 'weeks');
+                        eventGroup.events.push({
+                            text: 'plants dipped',
+                            date: date.format(),
+                            requestID: construct.requestID
+                        });
+
+                    } else {
+                        //plants dipped - 3 weeks after
+                        //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
+                        date = date.add(1, 'weeks');
+                        eventGroup.events.push({
+                            text: 'plants dipped',
+                            date: date.format(),
+                            requestID: construct.requestID
+                        });
+                    }
+
+                    //plants bagged - 3 weeks after
+                    date = date.add(3, 'weeks');
+                    eventGroup.events.push({
+                        text: 'plants bagged',
+                        date: date.format(),
+                        requestID: construct.requestID
+                    });
+
+                    //plants harvested - 3 weeks after
+                    date = date.add(3, 'weeks');
+                    eventGroup.events.push({
+                        text: 'plants harvested',
+                        date: date.format(),
+                        requestID: construct.requestID
+                    });
+
+                    //seeds returned - 1 week after
+                    date = date.add(1, 'week');
+                    eventGroup.events.push({
+                        text: 'seeds returned',
+                        date: date.format(),
+                        requestID: construct.requestID
+                    });
+
+                } else {
+                    //plant transformed
+                    //trf complete
+                }
+
+                return good(eventGroup);
+            })
+            .catch(err => {
+                return bad(err);
+            });
+
+    })
+}
+
+/**
+ *
+ * @param request
+ * @returns {Promise}
+ */
+function createEvents(request) {
+
+    return new Promise((good, bad) => {
+
+        // const events = [];
+
+
+        let isArabadopsis = false;
+        let isCol0 = false;
+
+
+        if (request.species.toLowerCase().indexOf('arabidopsis') > -1) {
+            isArabadopsis = true;
+
+            request.genotypes.map(genomeName => {
+                if (genomeName.toLowerCase().indexOf('col-0') || genomeName.toLowerCase().indexOf('col0')) {
+                    isCol0 = true;
+                }
+            });
+        }
+
+        Promise.all(
+            request.constructs.map(construct => {
+                return nameMeLater(construct, isArabadopsis, isCol0)
+            })
+        )
+            .then(events => {
+                return good(events);
+            })
+            .catch(err => {
+                return bad(err);
+            })
+    })
 }
 
 /**
@@ -407,17 +496,34 @@ Requests.save = (req, res) => {
     const body = req.body;
     const username = req.user.username;
 
+
     ProcessRequest(body)
         .then(request => {
             request.username = username;
             const newRequest = new Request(request);
             newRequest.saveAll({constructs: {strains: true}})
                 .then(savedRequest => {
-                    Promise.all(createSteps(savedRequest).map(event => {
-                        return new Event(event).save()
-                    }))
-                        .then(savedEvents => {
-                            return res.redirect(`/request/${savedRequest.id}`);
+
+                    createEvents(savedRequest)
+                        .then(eventGroups => {
+                            Promise.all(
+                                eventGroups.map(eg => {
+                                    return eg.events.map(event => {
+                                        console.log(event);
+                                        return new Event(event).save()
+                                    })
+                                })
+                            )
+                                .then(savedEvents => {
+                                    return res.redirect(`/request/${savedRequest.id}`);
+                                })
+                                .catch(err => {
+                                    //remove saved request if events failed to save
+                                    savedRequest.deleteAll({constructs: {strains: true}});
+                                    console.error(err);
+                                    return res.send(`Failed to save events: ${err}`);
+                                })
+
                         })
                         .catch(err => {
                             //remove saved request if events failed to save
@@ -425,6 +531,7 @@ Requests.save = (req, res) => {
                             console.error(err);
                             return res.send(`Failed to save events: ${err}`);
                         })
+
                 })
                 .catch(err => {
                     console.error(err);
