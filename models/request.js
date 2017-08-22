@@ -67,5 +67,7 @@ Request.define("getStatus", function () {
 
 const Construct = require('./construct');
 Request.hasMany(Construct, "constructs", "id", "requestID");
-const Event = require('./event');
-Request.hasMany(Event, 'events', 'id', 'requestID');
+// const Event = require('./event');
+// Request.hasMany(Event, 'events', 'id', 'requestID');
+const EventGroup = require('./eventGroup');
+Request.hasMany(EventGroup, 'eventGroups', 'id', 'requestID');

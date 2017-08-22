@@ -28813,6 +28813,7 @@ var Configuration = _react2.default.createClass({
                                     _react2.default.createElement(_reactSelect2.default.Creatable, {
                                         name: "config-strain#" + self.props.constructID + '#' + self.props.uid,
                                         value: this.state.selectedStrain,
+                                        required: true,
                                         options: strains,
                                         onChange: function onChange(selectedStrain) {
                                             self.setState({
@@ -28845,6 +28846,7 @@ var Configuration = _react2.default.createClass({
                                     _react2.default.createElement(_reactSelect2.default, {
                                         name: "config-genotypes#" + self.props.constructID + '#' + self.props.uid,
                                         value: this.state.genotypes,
+                                        required: true,
                                         multi: true,
                                         options: this.props.genotypes,
                                         onChange: function onChange(genotypes) {
@@ -29024,6 +29026,7 @@ var Construct = _react2.default.createClass({
                                                 'Vector Selection'
                                             ),
                                             _react2.default.createElement(_reactSelect2.default.Creatable, {
+                                                required: true,
                                                 name: "vectors#" + self.props.uid,
                                                 value: this.state.selectedVectors,
                                                 multi: true,
@@ -29065,6 +29068,7 @@ var Construct = _react2.default.createClass({
                                             ),
                                             _react2.default.createElement(_reactSelect2.default.Creatable, {
                                                 name: "tdna#" + self.props.uid,
+                                                required: true,
                                                 value: this.state.selectedTDNA,
                                                 options: this.state.availableTDNA,
                                                 onChange: function onChange(selectedTDNA) {
@@ -29439,6 +29443,7 @@ var App = _react2.default.createClass({
                                                 //TODO IF NOT col-0 flag it up
                                                 self.setState({ selectedSpecies: selectedSpecies });
                                             },
+                                            required: true,
                                             noResultsText: 'No Species added',
                                             placeholder: 'Select Species'
                                         })

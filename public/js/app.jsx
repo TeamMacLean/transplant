@@ -164,6 +164,7 @@ const Configuration = React.createClass({
                                         <Select.Creatable
                                             name={"config-strain#" + self.props.constructID + '#' + self.props.uid}
                                             value={this.state.selectedStrain}
+                                            required={true}
                                             options={strains}
                                             onChange={function (selectedStrain) {
                                                 self.setState({
@@ -187,6 +188,7 @@ const Configuration = React.createClass({
                                         <Select
                                             name={"config-genotypes#" + self.props.constructID + '#' + self.props.uid}
                                             value={this.state.genotypes}
+                                            required={true}
                                             multi={true}
                                             options={this.props.genotypes}
                                             onChange={function (genotypes) {
@@ -290,7 +292,7 @@ const Construct = React.createClass({
             if (confirm('Remove this configuration?')) {
 
                 const newConfigurations = this.state.configurations.filter(function (c) {
-                    return c.key != config.props.uid;
+                    return c.key !== config.props.uid;
                 });
                 this.setState({configurations: newConfigurations});
             }
@@ -337,6 +339,7 @@ const Construct = React.createClass({
                                             <fieldset>
                                                 <label className="center">Vector Selection</label>
                                                 <Select.Creatable
+                                                    required={true}
                                                     name={"vectors#" + self.props.uid}
                                                     value={this.state.selectedVectors}
                                                     multi={true}
@@ -366,6 +369,7 @@ const Construct = React.createClass({
                                                 <label className="center">T-DNA Selection</label>
                                                 <Select.Creatable
                                                     name={"tdna#" + self.props.uid}
+                                                    required={true}
                                                     value={this.state.selectedTDNA}
                                                     options={this.state.availableTDNA}
                                                     onChange={function (selectedTDNA) {
@@ -614,7 +618,7 @@ const App = React.createClass({
         if (this.state.constructs.length > 1) {
             if (confirm('Remove this construct?')) {
                 const newConstructs = this.state.constructs.filter(function (c) {
-                    return c.uid != construct.props.uid;
+                    return c.uid !== construct.props.uid;
                 });
                 this.setState({constructs: newConstructs});
             }
@@ -689,6 +693,7 @@ const App = React.createClass({
                                                     self.setState({selectedSpecies});
 
                                                 }}
+                                                required={true}
                                                 noResultsText="No Species added"
                                                 placeholder="Select Species"
                                             />

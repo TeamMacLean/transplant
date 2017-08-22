@@ -1,16 +1,17 @@
 const Requests = {};
 
 const renderError = require('../lib/renderError');
-const fs = require('fs');
+// const fs = require('fs');
 const config = require('../config.json');
 const moment = require('moment');
 const Event = require('../models/event');
+const EventGroup = require('../models/eventGroup');
 
 const Request = require('../models/request');
 
 const requestLIB = require('request');
 
-
+const THURSDAY = 4;
 const MAX_POT_COUNT_PER_WEEK = 6;
 
 /**
@@ -144,6 +145,7 @@ function ProcessRequest(body) {
 
         const species = body['config-species'];
         let genotypes = body['genotypes'];
+
         if (!Array.isArray(genotypes)) {
             genotypes = [genotypes];
         }
@@ -182,7 +184,7 @@ function ProcessRequest(body) {
                         return bad(new Error('no vectors'))
                     }
 
-                    console.log('vectors', VECTORS);
+                    ////console.log('vectors', VECTORS);
 
                     if (!Array.isArray(VECTORS)) {
                         VECTORS = [VECTORS];
@@ -260,25 +262,24 @@ function ProcessRequest(body) {
 }
 
 
-function getAvailableStartDate() {
+function getAvailableSowDate() {
 
 
     return new Promise((good, bad) => {
 
         let date = moment().startOf('day');
-        const THURSDAY = 4;
         date.add(1, 'weeks').isoWeekday(THURSDAY);
 
 
         function checkWeek(date) {
             Event.count({
-                date: date.format(),
+                date: date.toISOString(),
                 sowEvent: true
             })
                 .execute()
                 .then(count => {
 
-                    if (count < MAX_POT_COUNT_PER_WEEK) {
+                    if (count <= MAX_POT_COUNT_PER_WEEK) {
                         return good(date)
                     } else {
                         return checkWeek(date.add(1, 'weeks'));
@@ -290,34 +291,12 @@ function getAvailableStartDate() {
                 })
         }
 
-
         checkWeek(date); //kick it off
 
     })
-
-
-    //TODO find out how many slots are available next week, fill them, if more are need repeat each week until all required slots are filled.
-    // const events = [];
-    // let date = moment().startOf('day');
-
-
-    //TODO determine which week there are free pots and how many we can do each week:
-    // const potcCountForRequest = request.constructs.reduce((t1, c) => {
-    //     return t1 + c.strains.reduce((t2, s) => {
-    //         return t2 + s.genomes.length;
-    //     });
-    // });
-
-    // const potsAvailableThisWeek = Request
-
-    //TODO get pots by week
-
-
-    // return date;
-
 }
 
-function nameMeLater(construct, isArabadopsis, isCol0) {
+function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0) {
 
     return new Promise((good, bad) => {
 
@@ -346,102 +325,109 @@ function nameMeLater(construct, isArabadopsis, isCol0) {
          *
          */
 
-            //TODO get available start date
+        //TODO get available start date
 
-            // let date = moment().startOf('day');
-            // const THURSDAY = 4;
-            // date.add(1, 'weeks').isoWeekday(THURSDAY);
+        // let date = moment().startOf('day');
+        // const THURSDAY = 4;
+        // date.add(1, 'weeks').isoWeekday(THURSDAY);
 
-            //TODO test if
-
-        let eventGroup = {events: []}; //TODO work on this first
-
-        getAvailableStartDate()
-            .then(date => {
+        //TODO test if
 
 
+        // let eventGroup = {events: []}; //TODO work on this first
+
+        eventGroup.events = [];
+
+        const reveivedDate = moment().toISOString();
+
+        eventGroup.events.push({
+            text: 'request received',
+            date: reveivedDate,
+            requestID: construct.requestID,
+            eventGroupID: eventGroup.id
+        });
+
+        if (isArabadopsis) {
+            if (!isCol0) { //not col0
+
+                //plants sown - next thursday
+                //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
+                //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
+
+                date = date.add(1, 'weeks').isoWeekday(THURSDAY);
                 eventGroup.events.push({
-                    text: 'request received',
-                    date: date.format(),
-                    requestID: construct.requestID
+                    text: 'pants sown',
+                    date: date.toISOString(),
+                    sowEvent: true,
+                    requestID: construct.requestID,
+                    eventGroupID: eventGroup.id
                 });
 
-                if (isArabadopsis) {
-                    if (!isCol0) { //not col0
+                //plants in long day glasshouse - 5 weeks after
+                date = date.add(5, 'weeks').isoWeekday(THURSDAY);
+                eventGroup.events.push({
+                    text: 'plants in long day glasshouse',
+                    date: date.toISOString(),
+                    requestID: construct.requestID,
+                    eventGroupID: eventGroup.id
+                });
 
-                        //plants sown - next thursday
-                        //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
-                        //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
+                //plants dipped - 1-2 weeks after
+                date = date.add(2, 'weeks');
+                eventGroup.events.push({
+                    text: 'plants dipped',
+                    date: date.toISOString(),
+                    requestID: construct.requestID,
+                    eventGroupID: eventGroup.id
+                });
 
-                        date = date.add(1, 'weeks').isoWeekday(THURSDAY);
-                        eventGroup.events.push({
-                            text: 'pants sown',
-                            date: date.format(),
-                            sowEvent: true,
-                            requestID: construct.requestID
-                        });
+            } else {
+                //plants dipped - 3 weeks after
+                //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
+                date = date.add(1, 'weeks');
+                eventGroup.events.push({
+                    text: 'plants dipped',
+                    date: date.toISOString(),
+                    requestID: construct.requestID,
+                    eventGroupID: eventGroup.id
+                });
+            }
 
-                        //plants in long day glasshouse - 5 weeks after
-                        date = date.add(5, 'weeks').isoWeekday(THURSDAY);
-                        eventGroup.events.push({
-                            text: 'plants in long day glasshouse',
-                            date: date.format(),
-                            requestID: construct.requestID
-                        });
-
-                        //plants dipped - 1-2 weeks after
-                        date = date.add(2, 'weeks');
-                        eventGroup.events.push({
-                            text: 'plants dipped',
-                            date: date.format(),
-                            requestID: construct.requestID
-                        });
-
-                    } else {
-                        //plants dipped - 3 weeks after
-                        //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
-                        date = date.add(1, 'weeks');
-                        eventGroup.events.push({
-                            text: 'plants dipped',
-                            date: date.format(),
-                            requestID: construct.requestID
-                        });
-                    }
-
-                    //plants bagged - 3 weeks after
-                    date = date.add(3, 'weeks');
-                    eventGroup.events.push({
-                        text: 'plants bagged',
-                        date: date.format(),
-                        requestID: construct.requestID
-                    });
-
-                    //plants harvested - 3 weeks after
-                    date = date.add(3, 'weeks');
-                    eventGroup.events.push({
-                        text: 'plants harvested',
-                        date: date.format(),
-                        requestID: construct.requestID
-                    });
-
-                    //seeds returned - 1 week after
-                    date = date.add(1, 'week');
-                    eventGroup.events.push({
-                        text: 'seeds returned',
-                        date: date.format(),
-                        requestID: construct.requestID
-                    });
-
-                } else {
-                    //plant transformed
-                    //trf complete
-                }
-
-                return good(eventGroup);
-            })
-            .catch(err => {
-                return bad(err);
+            //plants bagged - 3 weeks after
+            date = date.add(3, 'weeks');
+            eventGroup.events.push({
+                text: 'plants bagged',
+                date: date.toISOString(),
+                requestID: construct.requestID,
+                eventGroupID: eventGroup.id
             });
+
+            //plants harvested - 3 weeks after
+            date = date.add(3, 'weeks');
+            eventGroup.events.push({
+                text: 'plants harvested',
+                date: date.toISOString(),
+                requestID: construct.requestID,
+                eventGroupID: eventGroup.id
+            });
+
+            //seeds returned - 1 week after
+            date = date.add(1, 'week');
+            eventGroup.events.push({
+                text: 'seeds returned',
+                date: date.toISOString(),
+                requestID: construct.requestID,
+                eventGroupID: eventGroup.id
+            });
+
+        } else {
+            //plant transformed
+            //trf complete
+        }
+
+        ////console.log('returning a');
+
+        return good(eventGroup);
 
     })
 }
@@ -453,10 +439,11 @@ function nameMeLater(construct, isArabadopsis, isCol0) {
  */
 function createEvents(request) {
 
+   //console.log('create events');
+
     return new Promise((good, bad) => {
 
-        // const events = [];
-
+       //console.log('c.e promise');
 
         let isArabadopsis = false;
         let isCol0 = false;
@@ -472,17 +459,99 @@ function createEvents(request) {
             });
         }
 
-        Promise.all(
-            request.constructs.map(construct => {
-                return nameMeLater(construct, isArabadopsis, isCol0)
+
+        function dateEquality(d1, d2) {
+            return moment(d1).isSame(moment(d2))
+        }
+
+        let lastEventGroup = null;
+
+
+        function processIt(construct) {
+
+            return new Promise((done, fail) => {
+
+               //console.log('m.t.c promise');
+
+                getAvailableSowDate()
+                    .then(momentDate => {
+
+                       //console.log('got available date');
+
+                        if (!lastEventGroup || !dateEquality(momentDate, lastEventGroup.sowDate)) { //if first event group OR if different date given.
+
+                            if (lastEventGroup) {
+                               //console.log('got last date');
+                               //console.log(momentDate.toISOString(), lastEventGroup.sowDate, dateEquality(momentDate, lastEventGroup.sowDate));
+                            } else {
+                               //console.log('no last group');
+                            }
+
+
+                           //console.log('DATE GOING IN', momentDate.toISOString());
+
+                            new EventGroup({
+                                requestID: request.id,
+                                sowDate: momentDate.toISOString()
+                            })
+                                .save()
+                                .then(savedEventGroup => {
+
+                                   //console.log('created event group', savedEventGroup.id);
+
+                                   //console.log('DATE COMING OUT', savedEventGroup.sowDate);
+
+                                    lastEventGroup = savedEventGroup; //important!
+
+                                    createTimelineEvents(construct, momentDate, savedEventGroup, isArabadopsis, isCol0)
+                                        .then(eventGroup => {
+                                           //console.log('name later done');
+
+                                            return done(eventGroup);
+                                        })
+                                        .catch(err => {
+                                            return fail(err);
+                                        });
+                                })
+                                .catch(err => {
+                                    return fail(err);
+                                })
+
+                        } else {
+
+                            createTimelineEvents(construct, momentDate, lastEventGroup, isArabadopsis, isCol0)
+                                .then(eventGroup => {
+                                   //console.log('name later done, 2');
+                                    return done(eventGroup)
+                                })
+                                .catch(err => {
+                                    return fail(err)
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        return fail(err);
+                    });
             })
-        )
-            .then(events => {
-                return good(events);
-            })
-            .catch(err => {
-                return bad(err);
-            })
+        }
+
+        function processPromiseArrayInSync(array, fn) {
+            const results = [];
+            return array.reduce(function (p, item) {
+                return p.then(function () {
+                    return fn(item).then(function (data) {
+                        results.push(data);
+                        return results;
+                    });
+                });
+            }, Promise.resolve());
+        }
+
+        processPromiseArrayInSync(request.constructs, processIt).then(function (events) {
+            return good(events);
+        }, function (err) {
+            return bad(err);
+        });
     })
 }
 
@@ -496,7 +565,6 @@ Requests.save = (req, res) => {
     const body = req.body;
     const username = req.user.username;
 
-
     ProcessRequest(body)
         .then(request => {
             request.username = username;
@@ -506,10 +574,14 @@ Requests.save = (req, res) => {
 
                     createEvents(savedRequest)
                         .then(eventGroups => {
+
+                            ////console.log(eventGroups);
+                            // process.exit(0);
+
                             Promise.all(
                                 eventGroups.map(eg => {
                                     return eg.events.map(event => {
-                                        console.log(event);
+                                        ////console.log(event);
                                         return new Event(event).save()
                                     })
                                 })
