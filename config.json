@@ -15,7 +15,7 @@
     "searchFilter": "(sAMAccountName={{username}})"
   },
   "email": {
-    "globalDomain":"nbi.ac.uk",
+    "globalDomain": "@"
     "host": "mail.nbi.ac.uk",
     "port": "25",
     "from": "TSL Plant Transformation ◉ <transplant@tsl.ac.uk>"
@@ -25,40 +25,70 @@
   ],
   "groups": [
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "Jonathan Jones",
+      "manager": {
+        "name": "Jonathan Jones",
+        "username": "jonesj"
+      },
       "color": "#A0D468",
-      "authorizer": "buhotl"
+      "authorizers": [
+        "buhotl"
+      ]
     },
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "Cyril Zipfel",
+      "manager": {
+        "name": "Cyril Zipfel",
+        "username": "zipfelc"
+      },
       "color": "#ED5565",
-      "authorizer": "stransfl"
+      "authorizers": [
+        "stransfl"
+      ]
     },
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "",
+      "manager": {
+        "name": "Dan MacLean",
+        "username": "macleand"
+      },
       "color": "#AC92EC",
-      "authorizer": "robatzek"
+      "authorizers": [
+        "robatzek"
+      ]
     },
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "",
+      "manager": {
+        "name": "Dan MacLean",
+        "username": "macleand"
+      },
       "color": "#FC6E51",
-      "authorizer": "menkef"
+      "authorizers": [
+        "menkef"
+      ]
     },
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "",
+      "manager": {
+        "name": "Dan MacLean",
+        "username": "macleand"
+      },
       "color": "#FFCE54",
-      "authorizer": "vanessep"
+      "authorizers": [
+        "vanessep"
+      ]
     },
     {
-      "name":"",
-      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "name": "",
+      "manager": {
+        "name": "Dan MacLean",
+        "username": "macleand"
+      },
       "color": "#4FC1E9",
-      "authorizer": "winj"
+      "authorizers": [
+        "winj"
+      ]
     }
   ]
 }

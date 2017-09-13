@@ -1,15 +1,10 @@
 const Requests = {};
 
 const renderError = require('../lib/renderError');
-// const fs = require('fs');
-const config = require('../config.json');
 const moment = require('moment');
 const Event = require('../models/event');
 const EventGroup = require('../models/eventGroup');
-
 const Request = require('../models/request');
-
-
 const Util = require('../lib/util');
 
 const THURSDAY = 4;
@@ -24,7 +19,6 @@ const MAX_POT_COUNT_PER_WEEK = 6;
 Requests.new = (req, res) => {
 
     Util.GetAdminInfo(req.user.username).then(adminInfo => {
-
         return res.render('requests/new', {adminInfo: adminInfo});
     }).catch(err => {
         return renderError(err, res);
@@ -513,8 +507,18 @@ Requests.my = (req, res) => {
         Promise.all(orders.map(r => {
             return r.getStatus()
         }))
-            .then((ordersWithStatuses) => {
-                return res.render('requests/my', {requests: sort(ordersWithStatuses)});
+            .then(ordersUpdated => {
+                return Promise.all(ordersUpdated.map(r => {
+                    return r.getGroup();
+                }))
+            })
+            .then(ordersUpdated => {
+                return Promise.all(ordersUpdated.map(r => {
+                    return r.getUser();
+                }))
+            })
+            .then((ordersUpdated) => {
+                return res.render('requests/my', {requests: sort(ordersUpdated)});
             }).catch((err) => renderError(err, res));
 
     }).catch((err) => renderError(err, res));
@@ -530,26 +534,12 @@ Requests.show = (req, res) => {
     const id = req.params.id;
     Request.get(id)
         .getJoin({constructs: {strains: true}, eventGroups: {events: true}})
+        .then(request => request.getStatus())
+        .then(request => request.getUser())
         .then(request => {
-
-            request.getStatus()
-                .then(() => {
-
-                    Util.GetUserObject(request.username)
-                        .then(user => {
-                            return res.render('requests/show', {request, userDisplayName: user.displayName});
-                        })
-                        .catch(err => {
-                            return res.render('requests/show', {request, userDisplayName: request.username});
-                        });
-
-                    // return res.render('requests/show', {request, userDisplayName});
-                })
-                .catch(err => renderError(err, res));
+            return res.render('requests/show', {request});
         })
-        .catch(err => {
-            return renderError(err);
-        })
+        .catch(err => renderError(err, res));
 };
 
 module.exports = Requests;

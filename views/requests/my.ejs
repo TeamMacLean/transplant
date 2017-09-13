@@ -13,11 +13,11 @@
             return b.createdAt - a.createdAt;
         }).map(function(request){ %>
         <div class="col4 auto-clear">
-            <div class="tile">
-                <div class="tile-block">
+            <div class="tile" >
+                <div class="tile-block" style="border:3px solid <%- request.group.color %>;">
                     <p>Ordered: <%- request.createdHumanDate() %></p>
                     <p>Status: <%- request.status || 'unknown' %></p>
-                    <p>Customer: <%- request.username %></p>
+                    <p>Customer: <%- request.user.name %></p>
                 </div>
                 <a href="/request/<%- request.id %>" class="button primary tile-button-bottom">Show</a>
             </div>

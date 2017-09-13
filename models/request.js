@@ -3,6 +3,7 @@ const type = thinky.type;
 const r = thinky.r;
 const moment = require('moment');
 const shortid = require('shortid');
+const AD = require('../lib/ad');
 
 const Request = thinky.createModel('Request', {
     id: type.string(),
@@ -75,6 +76,30 @@ Request.define("getStatus", function () {
             });
     });
 
+});
+
+Request.define("getGroup", function () {
+    const self = this;
+    return new Promise(function (good, bad) {
+        AD.GetGroup(self.username)
+            .then(g => {
+                self.group = g;
+                return good(self);
+            })
+            .catch(err => {console.log(err);return bad(err)});
+    })
+});
+
+Request.define("getUser", function () {
+    const self = this;
+    return new Promise(function (good, bad) {
+        AD.GetUser(self.username)
+            .then(user => {
+                self.user = user;
+                return good(self);
+            })
+            .catch(err => bad(err));
+    });
 });
 
 const Construct = require('./construct');

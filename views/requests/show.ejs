@@ -4,12 +4,8 @@
     <h1 class="center">Request</h1>
 
     <p>TRF Stage: <%- request.status %></p>
-    <!--<p>Status: <%- request.status %></p>-->
-    <!--<p>Username: <%- userDisplayName %></p>-->
-    <!--<p>Approved: <%- request.approved %></p>-->
-    <!--<p>Date: <%- request.date %></p>-->
+    <p>User: <%- request.user.name %></p>
     <p>Species: <%- JSON.parse(request.species).name %></p>
-    <!--<p>Genotype(s): <%- request.genotypes %></p>-->
 
     <table>
 
