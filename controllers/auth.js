@@ -1,8 +1,8 @@
 const Auth = {};
 const passport = require('passport');
-const gravatar = require('gravatar');
+
 const renderError = require('../lib/renderError');
-const config = require('../config.json');
+// const config = require('../config.json');
 const LOG = require('../lib/log');
 
 /**
@@ -46,7 +46,7 @@ Auth.signInPost = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            var message = 'Failed to sign in';
+            let message = 'Failed to sign in';
             if (info && info.message) {
                 message += `, ${info.message}`;
             }
@@ -56,8 +56,6 @@ Auth.signInPost = (req, res, next) => {
             if (err) {
                 return next(err);
             }
-
-            req.user.iconURL = gravatar.url(req.user.mail);
 
             //take them to the page they wanted before signing in :)
             if (req.session.returnTo) {

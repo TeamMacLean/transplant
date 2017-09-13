@@ -1,21 +1,60 @@
 <% include ../head.ejs %>
 
 <div class="container">
+
+    <h1 class="center">Requests</h1>
+
+    <h3 class="center">Open</h3>
     <div class="row">
-        <% requests.map(function(r){ %>
-        <div class="col6 auto-clear">
-            <a href="/request/<%- r.id %>">
-                <% var approvalString = r.getApprovalString() %>
-                <div class="tile <%- approvalString %>">
-                    <h2><strong>User:</strong> <%- r.username %></h2>
-                    <h3 class="italic"><%- approvalString %></h3>
-                    <br>
-                    <span><strong>Status:</strong> <%- r.status %></span>
+        <% if(requests.open.length == 0){ %>
+        <p class="center">None</p>
+        <% } else { %>
+        <% requests.open.sort(function (a, b) {
+            return b.createdAt - a.createdAt;
+        }).map(function(request){ %>
+        <div class="col4 auto-clear">
+            <div class="tile">
+                <div class="tile-block">
+                    <p>Ordered: <%- request.createdHumanDate() %></p>
+                    <p>Status: <%- request.status || 'unknown' %></p>
+                    <p>Customer: <%- request.username %></p>
                 </div>
-            </a>
+                <a href="/request/<%- request.id %>" class="button primary tile-button-bottom">Show</a>
+            </div>
         </div>
         <% }); %>
+        <% } %>
     </div>
+
+    <h3 class="center">Closed</h3>
+
+    <% if(requests.closed.length == 0){ %>
+    <p class="center">None</p>
+    <% } else { %>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Order Placed</th>
+            <th>Completion Date</th>
+            <th>Customer</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% requests.closed.sort(function (a, b) {
+            return b.createdAt - a.createdAt;
+        }).map(function(request){ %>
+        <tr>
+            <td><%- request.createdHumanDate() %></td>
+            <td><%- request.completedHumanDate() %></td>
+            <td><%- request.username %></td>
+            <td><a href="/order/<%- request.id %>">View</a></td>
+        </tr>
+        <% }); %>
+        </tbody>
+    </table>
+    <% } %>
+
 </div>
 
 <% include ../foot.ejs %>

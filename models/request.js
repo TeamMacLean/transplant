@@ -1,21 +1,30 @@
 const thinky = require('../lib/thinky');
 const type = thinky.type;
 const r = thinky.r;
-
 const moment = require('moment');
+const shortid = require('shortid');
 
 const Request = thinky.createModel('Request', {
     id: type.string(),
+    uid: type.string(),
     createdAt: type.date().default(r.now()),
     date: type.string().required(),
     approved: type.boolean().default(false),
     denied: type.boolean().default(false),
     username: type.string().required(),
     species: type.string().required(),
-    genotypes: type.array().schema(type.string()).required()
+    genotypes: type.array().schema(type.string()).required(),
+    complete: type.boolean().default(false)
 });
 
 module.exports = Request;
+
+Request.pre('save', function (next) {
+    if (!this.uid) {
+        this.uid = shortid.generate();
+    }
+    next();
+});
 
 Request.define('getApprovalString', function () {
     if (this.denied) {
@@ -29,34 +38,37 @@ Request.define('getApprovalString', function () {
     }
 });
 
+Request.define('createdHumanDate', function () {
+    return moment(this.createdAt).calendar();
+});
+Request.define('completedHumanDate', function () {
+    return moment(this.completedAt).calendar();
+});
+
 Request.define("getStatus", function () {
 
     const self = this;
 
     return new Promise(function (good, bad) {
 
-        const nowUnix = moment().unix();
+        self.status = 'unknown';
 
         Request.get(self.id)
-            .getJoin({events: true})
+            .getJoin({eventGroups: {events: true}})
             .then(function (request) {
+                if (request.eventGroups && request.eventGroups.length) {
 
-                if (request.events && request.events.length) {
+                    let mostRecentEvent = request.eventGroups.reduce((prev, current) => {
+                        let mostRecentInGroup = current.events.reduce((p, c) => {
+                            return (moment(p.date).unix() < moment(c.date).unix()) && (moment(c.date).unix() <= moment().unix()) ? p : c;
+                        }, {});
 
-                    let mostRecentEvent = request.events[0];
 
-                    request.events.map(function (event) {
-                        const thisUnix = moment(event.date).unix();
-                        if (thisUnix < nowUnix && thisUnix > moment(mostRecentEvent.date).unix()) {
-                            mostRecentEvent = event;
-                        }
-                    });
-
+                        return (moment(prev.date).unix() > moment(mostRecentInGroup.date).unix()) ? prev : mostRecentInGroup;
+                    }, {date: 0, text: 'unknown'});
                     self.status = mostRecentEvent.text;
-                    return good(mostRecentEvent.text);
-                } else {
-                    return good('unknown');
                 }
+                return good(self);
             })
             .catch(function (error) {
                 return bad(error);

@@ -660,11 +660,12 @@ const App = React.createClass({
 
                                     <Select.Creatable
                                         name={"config-costcode"}
-                                        value={window.adminInfo.cost}
+                                        value={this.state.costCode}
                                         options={window.adminInfo.cost}
                                         onChange={function (costCode) {
                                             self.setState({costCode});
                                         }}
+                                        required={true}
                                         noResultsText="No Cost Center added"
                                         placeholder="Select Cost Center"
                                     />

@@ -40,8 +40,10 @@
     "passport-ldapauth": "^0.5.0",
     "request": "^2.79.0",
     "session-rethinkdb": "latest",
+    "shortid": "^2.2.8",
     "thinky": "^2.3.8",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+    "activedirectory": "latest"
   },
   "devDependencies": {
     "css-loader": "^0.26.1",

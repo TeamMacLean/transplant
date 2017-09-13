@@ -12,6 +12,8 @@ let Admin = {};
  */
 Admin.timeline = (req, res) => {
 
+    // name (first inital + last name, trf),
+
     Request
         .getJoin({eventGroups: {events: true}})
         .run()

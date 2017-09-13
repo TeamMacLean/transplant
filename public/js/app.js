@@ -28938,7 +28938,7 @@ var Construct = _react2.default.createClass({
             if (confirm('Remove this configuration?')) {
 
                 var newConfigurations = this.state.configurations.filter(function (c) {
-                    return c.key != config.props.uid;
+                    return c.key !== config.props.uid;
                 });
                 this.setState({ configurations: newConfigurations });
             }
@@ -29320,7 +29320,7 @@ var App = _react2.default.createClass({
         if (this.state.constructs.length > 1) {
             if (confirm('Remove this construct?')) {
                 var newConstructs = this.state.constructs.filter(function (c) {
-                    return c.uid != construct.props.uid;
+                    return c.uid !== construct.props.uid;
                 });
                 this.setState({ constructs: newConstructs });
             }
@@ -29398,11 +29398,12 @@ var App = _react2.default.createClass({
                                 ),
                                 _react2.default.createElement(_reactSelect2.default.Creatable, {
                                     name: "config-costcode",
-                                    value: window.adminInfo.cost,
+                                    value: this.state.costCode,
                                     options: window.adminInfo.cost,
                                     onChange: function onChange(costCode) {
                                         self.setState({ costCode: costCode });
                                     },
+                                    required: true,
                                     noResultsText: 'No Cost Center added',
                                     placeholder: 'Select Cost Center'
                                 })

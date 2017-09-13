@@ -11,10 +11,11 @@
     "url": "ldap://dc2.nbi.ac.uk:389",
     "bindDn": "ldapuser",
     "bindCredentials": "P1neW00d",
-    "searchBase": "OU=TSLUsers,OU=NBIUsers,dc=nbi,dc=ac,dc=uk",
+    "searchBase": "OU=NBIUsers,dc=nbi,dc=ac,dc=uk",
     "searchFilter": "(sAMAccountName={{username}})"
   },
   "email": {
+    "globalDomain":"nbi.ac.uk",
     "host": "mail.nbi.ac.uk",
     "port": "25",
     "from": "TSL Plant Transformation ◉ <transplant@tsl.ac.uk>"
@@ -22,10 +23,42 @@
   "admins": [
     "pagem"
   ],
-  "groupLeaders": [
+  "groups": [
     {
-      "username": "macleand",
-      "name": "Dan MacLean"
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#A0D468",
+      "authorizer": "buhotl"
+    },
+    {
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#ED5565",
+      "authorizer": "stransfl"
+    },
+    {
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#AC92EC",
+      "authorizer": "robatzek"
+    },
+    {
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#FC6E51",
+      "authorizer": "menkef"
+    },
+    {
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#FFCE54",
+      "authorizer": "vanessep"
+    },
+    {
+      "name":"",
+      "manager": "CN=Dan MacLean (TSL),OU=TSLUsers,OU=NBIUsers,DC=nbi,DC=ac,DC=uk",
+      "color": "#4FC1E9",
+      "authorizer": "winj"
     }
   ]
 }

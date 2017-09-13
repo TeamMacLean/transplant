@@ -9,86 +9,12 @@ const EventGroup = require('../models/eventGroup');
 
 const Request = require('../models/request');
 
-const requestLIB = require('request');
+
+const Util = require('../lib/util');
 
 const THURSDAY = 4;
 const MAX_POT_COUNT_PER_WEEK = 6;
 
-/**
- *
- * @param username
- * @returns {*}
- * @constructor
- */
-function GetNameFromUsername(username) {
-    const found = config.groupLeaders.filter(gl => {
-        return gl.username === username;
-    });
-
-    if (found.length > 0) {
-        return found[0].name;
-    } else {
-        return username;
-    }
-}
-
-/**
- *
- * @param req
- * @returns {Promise}
- * @constructor
- */
-function GetAdminInfo(req) {
-
-    return new Promise((good, bad) => {
-        const auth = "Basic " + new Buffer(config.ldap.bindDn + ":" + config.ldap.bindCredentials).toString("base64");
-
-        requestLIB({
-                url: "http://intranet/infoserv/cgi-bin/directory/signatoriesList.asp?username=" + req.user.username,
-                headers: {
-                    "Authorization": auth
-                }
-            },
-            function (error, response, body) {
-                // Do more stuff with 'body' here
-
-                if (error) {
-                    return bad(error);
-                } else {
-                    const parseString = require('xml2js').parseString;
-                    parseString(body, function (err, result) {
-                        if (err) {
-                            return bad(err);
-                        } else {
-
-                            if (!result) {
-                                return bad(new Error('No Result'))
-                            }
-
-                            // get by username
-                            if (!result.SignatoryList) {
-                                return bad(new Error('No '))
-                            }
-
-                            const filterd = result.SignatoryList.Signatory.filter(s => {
-                                return s.userName === req.user.username;
-                            });
-                            if (filterd.length < 1) {
-                                return good(null);
-                                // return bad('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.')
-                                // return renderError('We could not find record of your line-manager/supervisor, we cannot preceded, sorry.', res);
-                            }
-                            if (filterd.length > 1) {
-                                console.error('found user ' + req.user.username + ' more than once in xml');
-                            }
-
-                            return good(filterd[0]);
-                        }
-                    });
-                }
-            });
-    });
-}
 
 /**
  *
@@ -97,34 +23,9 @@ function GetAdminInfo(req) {
  */
 Requests.new = (req, res) => {
 
-    GetAdminInfo(req).then(adminInfo => {
+    Util.GetAdminInfo(req.user.username).then(adminInfo => {
 
-        let tidyUpAdminObject = {};
-
-        if (adminInfo) {
-
-            const bossUsername = adminInfo.SupervisorUsername[0] || adminInfo.LineManagerUsername[0];
-
-            const prettyCosts = adminInfo.CostCentres.map(c => {
-
-                return {
-                    label: c.CostCentre[0],
-                    value: c.CostCentre[0]
-                }
-            });
-
-
-            tidyUpAdminObject = {
-                boss: {
-                    username: bossUsername,
-                    name: GetNameFromUsername(bossUsername)
-                },
-                cost: prettyCosts
-            };
-        }
-
-
-        return res.render('requests/new', {adminInfo: tidyUpAdminObject});
+        return res.render('requests/new', {adminInfo: adminInfo});
     }).catch(err => {
         return renderError(err, res);
     })
@@ -183,8 +84,6 @@ function ProcessRequest(body) {
                     if (!VECTORS) {
                         return bad(new Error('no vectors'))
                     }
-
-                    ////console.log('vectors', VECTORS);
 
                     if (!Array.isArray(VECTORS)) {
                         VECTORS = [VECTORS];
@@ -245,7 +144,7 @@ function ProcessRequest(body) {
             return bad(new Error('no DATE'))
         }
         // if (!NOTES) {
-        //     return bad(new Error('no NOTES'))
+        //     return bad(new Error('no NOTES')) //TODO optional?
         // }
 
 
@@ -325,17 +224,6 @@ function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0
          *
          */
 
-        //TODO get available start date
-
-        // let date = moment().startOf('day');
-        // const THURSDAY = 4;
-        // date.add(1, 'weeks').isoWeekday(THURSDAY);
-
-        //TODO test if
-
-
-        // let eventGroup = {events: []}; //TODO work on this first
-
         eventGroup.events = [];
 
         const reveivedDate = moment().toISOString();
@@ -349,10 +237,6 @@ function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0
 
         if (isArabadopsis) {
             if (!isCol0) { //not col0
-
-                //plants sown - next thursday
-                //TODO if(TODAY == mon,tue or wed){do it THIS tursday} else {
-                //TODO if constructcount for the last thursday-thursday + (this contruct count * 3) > 48, queue it for the next week (check that week too, recursive)
 
                 date = date.add(1, 'weeks').isoWeekday(THURSDAY);
                 eventGroup.events.push({
@@ -382,8 +266,9 @@ function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0
                 });
 
             } else {
+
+                //TODO is limited to ${MAX_POT_COUNT_PER_WEEK}
                 //plants dipped - 3 weeks after
-                //TODO if the count of col0 constructs this thurs-thurs > 6 do it the following week (recursive check)
                 date = date.add(1, 'weeks');
                 eventGroup.events.push({
                     text: 'plants dipped',
@@ -425,8 +310,6 @@ function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0
             //trf complete
         }
 
-        ////console.log('returning a');
-
         return good(eventGroup);
 
     })
@@ -439,11 +322,7 @@ function createTimelineEvents(construct, date, eventGroup, isArabadopsis, isCol0
  */
 function createEvents(request) {
 
-   //console.log('create events');
-
     return new Promise((good, bad) => {
-
-       //console.log('c.e promise');
 
         let isArabadopsis = false;
         let isCol0 = false;
@@ -471,24 +350,10 @@ function createEvents(request) {
 
             return new Promise((done, fail) => {
 
-               //console.log('m.t.c promise');
-
                 getAvailableSowDate()
                     .then(momentDate => {
 
-                       //console.log('got available date');
-
                         if (!lastEventGroup || !dateEquality(momentDate, lastEventGroup.sowDate)) { //if first event group OR if different date given.
-
-                            if (lastEventGroup) {
-                               //console.log('got last date');
-                               //console.log(momentDate.toISOString(), lastEventGroup.sowDate, dateEquality(momentDate, lastEventGroup.sowDate));
-                            } else {
-                               //console.log('no last group');
-                            }
-
-
-                           //console.log('DATE GOING IN', momentDate.toISOString());
 
                             new EventGroup({
                                 requestID: request.id,
@@ -497,15 +362,10 @@ function createEvents(request) {
                                 .save()
                                 .then(savedEventGroup => {
 
-                                   //console.log('created event group', savedEventGroup.id);
-
-                                   //console.log('DATE COMING OUT', savedEventGroup.sowDate);
-
                                     lastEventGroup = savedEventGroup; //important!
 
                                     createTimelineEvents(construct, momentDate, savedEventGroup, isArabadopsis, isCol0)
                                         .then(eventGroup => {
-                                           //console.log('name later done');
 
                                             return done(eventGroup);
                                         })
@@ -521,7 +381,6 @@ function createEvents(request) {
 
                             createTimelineEvents(construct, momentDate, lastEventGroup, isArabadopsis, isCol0)
                                 .then(eventGroup => {
-                                   //console.log('name later done, 2');
                                     return done(eventGroup)
                                 })
                                 .catch(err => {
@@ -535,6 +394,12 @@ function createEvents(request) {
             })
         }
 
+        /**
+         * process an array of processes in sync
+         * @param array
+         * @param fn
+         * @returns {*}
+         */
         function processPromiseArrayInSync(array, fn) {
             const results = [];
             return array.reduce(function (p, item) {
@@ -547,7 +412,9 @@ function createEvents(request) {
             }, Promise.resolve());
         }
 
-        processPromiseArrayInSync(request.constructs, processIt).then(function (events) {
+        //TODO make array of strains * genotypes
+
+        processPromiseArrayInSync(request.constructs, processIt).then(function (events) { //this needs to be strains * genotypes
             return good(events);
         }, function (err) {
             return bad(err);
@@ -575,13 +442,9 @@ Requests.save = (req, res) => {
                     createEvents(savedRequest)
                         .then(eventGroups => {
 
-                            ////console.log(eventGroups);
-                            // process.exit(0);
-
                             Promise.all(
                                 eventGroups.map(eg => {
                                     return eg.events.map(event => {
-                                        ////console.log(event);
                                         return new Event(event).save()
                                     })
                                 })
@@ -622,23 +485,39 @@ Requests.save = (req, res) => {
  * @param res
  */
 Requests.my = (req, res) => {
+
     const username = req.user.username;
-    Request.filter({username: username})
-        .run()
-        .then(requests => {
 
-            Promise.all(requests.map(r => {
-                return r.getStatus()
-            }))
-                .then(() => {
-                    return res.render('requests/my', {requests});
-                })
-                .catch(err => renderError(err, res));
+    const filter = {};
 
-        })
-        .catch(err => {
-            return renderError(err, res);
-        })
+    if (!Util.IsAdmin(username)) {
+        filter.username = username;
+    }
+
+    function sort(orders) {
+        const sortedRequests = {open: [], closed: []};
+
+        orders.map((order) => {
+            if (order.complete) {
+                sortedRequests.closed.push(order);
+            } else {
+                sortedRequests.open.push(order);
+            }
+        });
+
+        return sortedRequests
+    }
+
+    Request.filter(filter).then((orders) => {
+
+        Promise.all(orders.map(r => {
+            return r.getStatus()
+        }))
+            .then((ordersWithStatuses) => {
+                return res.render('requests/my', {requests: sort(ordersWithStatuses)});
+            }).catch((err) => renderError(err, res));
+
+    }).catch((err) => renderError(err, res));
 };
 
 /**
@@ -650,12 +529,21 @@ Requests.show = (req, res) => {
 
     const id = req.params.id;
     Request.get(id)
-        .getJoin({constructs: {strains: true}})
+        .getJoin({constructs: {strains: true}, eventGroups: {events: true}})
         .then(request => {
 
             request.getStatus()
                 .then(() => {
-                    return res.render('requests/show', {request});
+
+                    Util.GetUserObject(request.username)
+                        .then(user => {
+                            return res.render('requests/show', {request, userDisplayName: user.displayName});
+                        })
+                        .catch(err => {
+                            return res.render('requests/show', {request, userDisplayName: request.username});
+                        });
+
+                    // return res.render('requests/show', {request, userDisplayName});
                 })
                 .catch(err => renderError(err, res));
         })

@@ -28,5 +28,45 @@
   },
   "admins": [
     "pagem"
+  ],
+  "groups": [
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    },
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    },
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    },
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    },
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    },
+    {
+      "name":"",
+      "leader": "",
+      "color": "",
+      "authorizer": ""
+    }
   ]
 }
+
+

@@ -44,7 +44,7 @@ app.use((req, res, next) => {
             res.locals.signedInUser.username = req.user.username;
             res.locals.signedInUser.name = req.user.name;
             res.locals.signedInUser.mail = req.user.mail;
-            res.locals.signedInUser.isAdmin = util.isAdmin(req.user.username);
+            res.locals.signedInUser.IsAdmin = util.IsAdmin(req.user.username);
             if (req.user.iconURL) {
                 res.locals.signedInUser.iconURL = req.user.iconURL;
             }
@@ -73,7 +73,7 @@ app.use((req, res, next) => {
 //     next();
 // });
 
-util.setupPassport();
+util.SetupPassport();
 
 app.use('/', routes);
 

@@ -1,39 +1,45 @@
 <% include ../head.ejs %>
 
 <div class="container">
-    <h2>Request</h2>
-    <!--STATUS-->
-    <p>Status: <%- request.stastatustus %></p>
+    <h1 class="center">Request</h1>
 
-    <p>ID: <%- request.id %></p>
-    <p>Username: <%- request.username %></p>
-    <p>Approved: <%- request.approved %></p>
-    <p>Date: <%- request.date %></p>
-    <p>Created At: <%- request.createdAt %></p>
+    <p>TRF Stage: <%- request.status %></p>
+    <!--<p>Status: <%- request.status %></p>-->
+    <!--<p>Username: <%- userDisplayName %></p>-->
+    <!--<p>Approved: <%- request.approved %></p>-->
+    <!--<p>Date: <%- request.date %></p>-->
+    <p>Species: <%- JSON.parse(request.species).name %></p>
+    <!--<p>Genotype(s): <%- request.genotypes %></p>-->
 
+    <table>
 
-    <ul>
+        <tr>
+            <th>Construct</th>
+            <th>Agro</th>
+            <th>Genotype</th>
+            <th>Current Stage</th>
+            <th>Date of next stage (estimate)</th>
+        </tr>
+
         <% request.constructs.map(function(construct){ %>
-        <li>
-            <h3>Construct</h3>
-            <p>ID: <%- construct.id %></p>
-            <p>Name: <%- construct.name %></p>
-            <p>Backbone: <%- construct.backbone %></p>
-            <p>T-DNA: <%- construct.tdna %></p>
-            <p>Vectors: <%- construct.vectors %></p>
-            <ul>
-                <% construct.strains.map(function(strain){ %>
-                <h3>Strain</h3>
-                <li>
-                    <p>ID: <%- strain.id %></p>
-                    <p>Strain: <%- strain.strain %></p>
-                    <p>Genomes: <%- strain.genomes %></p>
-                </li>
-                <% }); %>
-            </ul>
-        </li>
+        <% construct.strains.map(function(strain){ %>
+        <% strain.genomes.map(function(genome){ %>
+
+        <tr>
+            <td><%- construct.name %></td>
+            <td><%- strain.strain %></td>
+            <td><%- genome %></td>
+            <td><%- request.status %></td>
+            <td>NOT AVAILABLE</td>
+        </tr>
+
         <% }); %>
-    </ul>
+        <% }); %>
+        <% }); %>
+
+    </table>
+
+
 </div>
 
 <% include ../foot.ejs %>

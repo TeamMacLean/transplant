@@ -83,7 +83,7 @@ function isAuthenticated(req, res, next) {
  * @returns {*}
  */
 function isAdmin(req, res, next) {
-    if (Util.isAdmin(req.user.username)) {
+    if (Util.IsAdmin(req.user.username)) {
         return next();
     } else {
         return res.send('You cannot access this page, you are not an admin.');
