@@ -6,6 +6,7 @@ const Event = require('../models/event');
 const EventGroup = require('../models/eventGroup');
 const Request = require('../models/request');
 const Util = require('../lib/util');
+const AD = require('../lib/ad');
 
 const THURSDAY = 4;
 const MAX_POT_COUNT_PER_WEEK = 6;
@@ -17,13 +18,11 @@ const MAX_POT_COUNT_PER_WEEK = 6;
  * @param res
  */
 Requests.new = (req, res) => {
-
-    Util.GetAdminInfo(req.user.username).then(adminInfo => {
-        return res.render('requests/new', {adminInfo: adminInfo});
-    }).catch(err => {
-        return renderError(err, res);
-    })
-
+    AD.GetGroup(req.user.username)
+        .then(group => {
+            return res.render('requests/new', {group});
+        })
+        .catch(err => renderError(err, res));
 };
 
 /**
@@ -157,12 +156,10 @@ function ProcessRequest(body) {
 
 function getAvailableSowDate() {
 
-
     return new Promise((good, bad) => {
 
         let date = moment().startOf('day');
         date.add(1, 'weeks').isoWeekday(THURSDAY);
-
 
         function checkWeek(date) {
             Event.count({

@@ -15,79 +15,107 @@
     "searchFilter": "(sAMAccountName={{username}})"
   },
   "email": {
-    "globalDomain": "@"
     "host": "mail.nbi.ac.uk",
     "port": "25",
-    "from": "TSL Plant Transformation ◉ <transplant@tsl.ac.uk>"
+    "from": "TSL Plant Transformation ◉ <transplant@tsl.ac.uk>",
+    "emailDomain": "@nbi.ac.uk"
   },
   "admins": [
     "pagem"
   ],
   "groups": [
     {
-      "name": "Jonathan Jones",
+      "name": "Bioinformatics",
+      "manager": {
+        "name": "Dan MacLean",
+        "username": "macleand"
+      },
+      "color": "#EC87C0",
+      "authorizers": [
+      ]
+    },
+    {
+      "name": "Jones Lab",
       "manager": {
         "name": "Jonathan Jones",
         "username": "jonesj"
       },
       "color": "#A0D468",
       "authorizers": [
-        "buhotl"
+        {
+          "name": "Laurence Tomlinson",
+          "username": "buhotl"
+        }
       ]
     },
     {
-      "name": "Cyril Zipfel",
+      "name": "Zipfel Lab",
       "manager": {
         "name": "Cyril Zipfel",
         "username": "zipfelc"
       },
       "color": "#ED5565",
       "authorizers": [
-        "stransfl"
+        {
+          "name": "",
+          "username": "stransfl"
+        }
       ]
     },
     {
-      "name": "",
+      "name": "Robatzek Lab",
       "manager": {
-        "name": "Dan MacLean",
-        "username": "macleand"
+        "name": "Silke Robatzek",
+        "username": "robatzek"
       },
       "color": "#AC92EC",
       "authorizers": [
-        "robatzek"
+        {
+          "name": "Lena Stransfeld",
+          "username": "robatzek"
+        }
       ]
     },
     {
-      "name": "",
+      "name": "Proteomics",
       "manager": {
-        "name": "Dan MacLean",
-        "username": "macleand"
+        "name": "Frank Menke",
+        "username": "menkef"
       },
       "color": "#FC6E51",
       "authorizers": [
-        "menkef"
+        {
+          "name": "Frank Menke",
+          "username": "menkef"
+        }
       ]
     },
     {
-      "name": "",
+      "name": "2Blades",
       "manager": {
-        "name": "Dan MacLean",
-        "username": "macleand"
+        "name": "Peter Van Esse",
+        "username": "vanessep"
       },
       "color": "#FFCE54",
       "authorizers": [
-        "vanessep"
+        {
+          "name": "Peter Van Esse",
+          "username": "vanessep"
+        }
       ]
     },
     {
-      "name": "",
+      "name": "Kamoun Lab",
       "manager": {
-        "name": "Dan MacLean",
-        "username": "macleand"
+        "name": "Sophien Kamoun",
+        "username": "kamouns"
       },
       "color": "#4FC1E9",
       "authorizers": [
-        "winj"
+        {
+          "name": "Joe Win",
+          "username": "winj"
+        }
       ]
     }
   ]

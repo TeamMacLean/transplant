@@ -52,29 +52,69 @@ Request.define("getStatus", function () {
 
     return new Promise(function (good, bad) {
 
-        self.status = 'unknown';
-
         Request.get(self.id)
             .getJoin({eventGroups: {events: true}})
             .then(function (request) {
-                if (request.eventGroups && request.eventGroups.length) {
 
-                    let mostRecentEvent = request.eventGroups.reduce((prev, current) => {
-                        let mostRecentInGroup = current.events.reduce((p, c) => {
-                            return (moment(p.date).unix() < moment(c.date).unix()) && (moment(c.date).unix() <= moment().unix()) ? p : c;
-                        }, {});
+                // request.eventGroups.reduce((previousGroup, currentGroup) => {
+                let mapped = request.eventGroups.map(currentGroup => {
 
 
-                        return (moment(prev.date).unix() > moment(mostRecentInGroup.date).unix()) ? prev : mostRecentInGroup;
-                    }, {date: 0, text: 'unknown'});
-                    self.status = mostRecentEvent.text;
-                }
-                return good(self);
-            })
-            .catch(function (error) {
-                return bad(error);
+                    let bestEventInGroup = currentGroup.events.reduce((previousEvent, currentEvent) => {
+                        let now = moment().unix();
+                        let cm = moment(currentEvent.date).unix();
+                        let pm = moment(previousEvent.date).unix();
+
+                        // console.log(cm, now, cm < now);
+                        // console.log(cm, pm, cm > pm);
+                        // console.log(pm === now);
+
+                        return (cm < now && cm > pm) ? currentEvent : previousEvent;
+                    }, {date: 0, text: 'unknown'}); //TODO this might return nothing if there have been no events yet*
+
+                    return bestEventInGroup;
+
+                    // let cm = moment(currentGroup).unix();
+                    // let pm = moment(previousGroup.date).unix();
+
+                })
+
+                // console.log(mapped);
+
             });
+
+        self.status = 'WIP';
+
+        return good(self);
+
     });
+
+
+    // return new Promise(function (good, bad) {
+    //
+    //     self.status = 'unknown';
+    //
+    //     Request.get(self.id)
+    //         .getJoin({eventGroups: {events: true}})
+    //         .then(function (request) {
+    //             if (request.eventGroups && request.eventGroups.length) {
+    //
+    //                 let mostRecentEvent = request.eventGroups.reduce((prev, current) => {
+    //                     let mostRecentInGroup = current.events.reduce((p, c) => {
+    //                         return (moment(p.date).unix() < moment(c.date).unix()) && (moment(c.date).unix() <= moment().unix()) ? p : c;
+    //                     }, {});
+    //
+    //
+    //                     return (moment(prev.date).unix() > moment(mostRecentInGroup.date).unix()) ? prev : mostRecentInGroup;
+    //                 }, {date: 0, text: 'unknown'});
+    //                 self.status = mostRecentEvent.text;
+    //             }
+    //             return good(self);
+    //         })
+    //         .catch(function (error) {
+    //             return bad(error);
+    //         });
+    // });
 
 });
 
@@ -86,7 +126,10 @@ Request.define("getGroup", function () {
                 self.group = g;
                 return good(self);
             })
-            .catch(err => {console.log(err);return bad(err)});
+            .catch(err => {
+                console.error(err);
+                return bad(err)
+            });
     })
 });
 

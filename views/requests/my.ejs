@@ -14,7 +14,7 @@
         }).map(function(request){ %>
         <div class="col4 auto-clear">
             <div class="tile" >
-                <div class="tile-block" style="border:3px solid <%- request.group.color %>;">
+                <div class="tile-block" style="border-top:6px solid <%- request.group.color %>;">
                     <p>Ordered: <%- request.createdHumanDate() %></p>
                     <p>Status: <%- request.status || 'unknown' %></p>
                     <p>Customer: <%- request.user.name %></p>

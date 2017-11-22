@@ -441,7 +441,8 @@ const App = React.createClass({
             selectedSpecies: null,
             tour: null,
             tourHidden: false,
-            costCode: null
+            costCode: null,
+            signatory: null
         };
     },
     toggleTour: function toggleTour() {
@@ -655,19 +656,19 @@ const App = React.createClass({
                             </div>
                             <div className="col4 center">
                                 <fieldset>
-                                    <label>Cost Code</label>
+                                    <label>Signatory</label>
 
 
-                                    <Select.Creatable
-                                        name={"config-costcode"}
-                                        value={this.state.costCode}
-                                        options={window.adminInfo.cost}
-                                        onChange={function (costCode) {
-                                            self.setState({costCode});
+                                    <Select
+                                        name={"config-signatory"}
+                                        value={this.state.signatory}
+                                        options={window.group.authorizers.concat(window.group.manager).map(a=>{return {label:a.name, value:a.username}})}
+                                        onChange={function (signatory) {
+                                            self.setState({signatory});
                                         }}
                                         required={true}
-                                        noResultsText="No Cost Center added"
-                                        placeholder="Select Cost Center"
+                                        noResultsText="No signatory selected"
+                                        placeholder="Select signatory"
                                     />
 
                                 </fieldset>

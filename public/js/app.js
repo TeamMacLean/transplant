@@ -29156,7 +29156,8 @@ var App = _react2.default.createClass({
             selectedSpecies: null,
             tour: null,
             tourHidden: false,
-            costCode: null
+            costCode: null,
+            signatory: null
         };
     },
     toggleTour: function toggleTour() {
@@ -29394,18 +29395,20 @@ var App = _react2.default.createClass({
                                 _react2.default.createElement(
                                     'label',
                                     null,
-                                    'Cost Code'
+                                    'Signatory'
                                 ),
-                                _react2.default.createElement(_reactSelect2.default.Creatable, {
-                                    name: "config-costcode",
-                                    value: this.state.costCode,
-                                    options: window.adminInfo.cost,
-                                    onChange: function onChange(costCode) {
-                                        self.setState({ costCode: costCode });
+                                _react2.default.createElement(_reactSelect2.default, {
+                                    name: "config-signatory",
+                                    value: this.state.signatory,
+                                    options: window.group.authorizers.concat(window.group.manager).map(function (a) {
+                                        return { label: a.name, value: a.username };
+                                    }),
+                                    onChange: function onChange(signatory) {
+                                        self.setState({ signatory: signatory });
                                     },
                                     required: true,
-                                    noResultsText: 'No Cost Center added',
-                                    placeholder: 'Select Cost Center'
+                                    noResultsText: 'No signatory selected',
+                                    placeholder: 'Select signatory'
                                 })
                             )
                         )

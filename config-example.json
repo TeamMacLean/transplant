@@ -31,42 +31,19 @@
   ],
   "groups": [
     {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
-    },
-    {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
-    },
-    {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
-    },
-    {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
-    },
-    {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
-    },
-    {
-      "name":"",
-      "leader": "",
-      "color": "",
-      "authorizer": ""
+      "name": "Bob's Lab",
+      "manager": {
+        "name": "Bob",
+        "username": "labb"
+      },
+      "color": "#A0D468",
+      "authorizers": [
+        {
+          "name": "Tom",
+          "username": "ttt"
+        }
+      ]
     }
-  ]
 }
 
 
