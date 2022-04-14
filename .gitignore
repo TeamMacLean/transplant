@@ -4,3 +4,4 @@ public/components
 public/uploads/
 /siglist_22_12_16.xml
 config.json
+.DS_Store
