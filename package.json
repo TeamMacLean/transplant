@@ -25,6 +25,7 @@
     "activedirectory": "latest",
     "body-parser": "latest",
     "cookie-parser": "latest",
+    "dtrace-provider": "0.8.8",
     "ejs": "^2.5.5",
     "email-templates": "^2.5.4",
     "express": "latest",
