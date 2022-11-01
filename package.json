@@ -33,7 +33,7 @@
     "express-session": "^1.14.2",
     "fsevents": "^1.2.7",
     "gravatar": "^1.8.2",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "less-middleware": "^2.2.0",
     "multer": "^0.1.8",
     "nodemailer": "^2.6.4",
