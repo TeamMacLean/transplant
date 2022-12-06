@@ -35,7 +35,7 @@
     "gravatar": "^1.8.2",
     "gulp": "^3.9.1",
     "less-middleware": "^2.2.0",
-    "multer": "^0.1.8",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^2.6.4",
     "nodemailer-smtp-transport": "^2.7.2",
     "passport": "latest",
