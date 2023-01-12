@@ -30,7 +30,7 @@
     "email-templates": "^2.5.4",
     "express": "latest",
     "express-flash": "latest",
-    "express-session": "^1.14.2",
+    "express-session": "^1.17.3",
     "fsevents": "^1.2.7",
     "gravatar": "^1.8.2",
     "gulp": "^3.9.1",
